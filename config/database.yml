@@ -81,6 +81,4 @@ test:
 #
 production:
   <<: *default
-  database: v43_tier3_team_40_production
-  username: v43_tier3_team_40
-  password: <%= ENV["V43_TIER3_TEAM_40_DATABASE_PASSWORD"] %>
+  url: <%= ENV['DATABASE_URL'] %>
