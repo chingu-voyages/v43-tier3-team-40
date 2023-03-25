@@ -6,17 +6,25 @@ application up and running.
 Things you may want to cover:
 
 * Ruby version
-
+    ruby 3.0.
 * System dependencies
+
 
 * Configuration
 
-* Database creation
+* Instructions to start application
+ $```rails db:create ```
+    
+ $```rails db:migrate```  
+ - Install dependencies
+ $```bundle install```
 
-* Database initialization
+* Start the backend 
+```rails s ```
 
-* How to run the test suite
-
+* Start the frontend 
+```npm start --prefix client```
+- View on localhost:4000
 * Services (job queues, cache servers, search engines, etc.)
 
 * Deployment instructions
