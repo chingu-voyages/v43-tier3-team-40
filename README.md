@@ -1,14 +1,34 @@
-# voyage-tasks
+# README
 
-Your project's `readme` is as important to success as your code. For 
-this reason you should put as much care into its creation and maintenance
-as you would any other component of the application.
+Welcome to BodyBalance 
 
-If you are unsure of what should go into the `readme` let this article,
-written by an experienced Chingu, be your starting point - 
-[Keys to a well written README](https://tinyurl.com/yk3wubft).
 
-And before we go there's "one more thing"! Once you decide what to include
-in your `readme` feel free to replace the text we've provided here.
 
-> Own it & Make it your Own!
+## System dependencies
+
+
+
+
+
+
+
+## Instructions to start application
+ $```rails db:create ```
+    
+ $```rails db:migrate```  
+ - Install dependencies
+ $```bundle install```
+
+* Start the backend 
+```rails s ```
+
+* Start the frontend 
+``npm i`` 
+```npm start --prefix client```
+- View on localhost:4000
+* Services (job queues, cache servers, search engines, etc.)
+
+## Live Deployment 
+- https://bodybalance.onrender.com
+
+
