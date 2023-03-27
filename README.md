@@ -1,18 +1,18 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
-
-Things you may want to cover:
-
-* Ruby version
-    ruby 3.0.
-* System dependencies
+Welcome to BodyBalance 
 
 
-* Configuration
 
-* Instructions to start application
+## System dependencies
+
+
+
+
+
+
+
+## Instructions to start application
  $```rails db:create ```
     
  $```rails db:migrate```  
@@ -23,10 +23,12 @@ Things you may want to cover:
 ```rails s ```
 
 * Start the frontend 
+``npm i`` 
 ```npm start --prefix client```
 - View on localhost:4000
 * Services (job queues, cache servers, search engines, etc.)
 
-* Deployment instructions
+## Live Deployment 
+- https://bodybalance.onrender.com
 
-* ...
+
