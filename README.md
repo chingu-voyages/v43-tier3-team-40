@@ -19,3 +19,17 @@ Add-project-description-here
 #### Running the client
 1. Start the client : `npm run dev`
 2. Visit http://localhost:3000 in your browser.
+
+
+### Database
+
+#### Installation (dotenv & pg)
+1. cd to the Backend folder : cd Backend
+2. Install dependencies : `npm install`
+3. Create the file `.env` in Backend folder (this file is already listed in the .gitignore)
+4. In your `.env`, write `SECRET_KEY="mysecret"`, with "mysecret" being replaced by whatever string of characters you choose for yourself
+
+
+#### DB Creation
+1. In terminal, type `createdb bodybalance`
+2. Then type `createdb bodybalance_test`
