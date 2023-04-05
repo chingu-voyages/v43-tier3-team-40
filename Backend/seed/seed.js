@@ -1,6 +1,7 @@
 
 /** One function to seed whichever database is being
- * pointed to by process.env.MODE. 
+ * pointed to by process.env.MODE. Full instructions
+ * for use in main README.md.
 */
 
 const seed = async() => {
@@ -8,8 +9,6 @@ const seed = async() => {
   const db = require('../db');
 
   db.on('connect', async () => {
-    // console.log(db.database)
-
 
     // clear all tables
     await db.query('DROP TABLE IF EXISTS users CASCADE');
