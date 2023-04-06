@@ -46,6 +46,29 @@ class DuplicateEmailError extends ExpressError {
 module.exports.DuplicateEmailError = DuplicateEmailError; 
 
 
+class BadUsernameError extends ExpressError {
+  constructor(message="Please enter a valid username. Usernames must be at least 6 characters long, and can contain lowercase characters, uppercase characters, and numbers") {
+    super(message, 400);
+  }
+}
+module.exports.BadUsernameError = BadUsernameError; 
+
+
+class BadEmailError extends ExpressError {
+  constructor(message="Please enter a valid email address") {
+    super(message, 400);
+  }
+}
+module.exports.BadEmailError = BadEmailError; 
+
+
+class BadPasswordError extends ExpressError {
+  constructor(message="Please make sure that your password is at least six characters") {
+    super(message, 400);
+  }
+}
+module.exports.BadPasswordError = BadPasswordError; 
+
 
 /** UNAUTHORIZED 401 STATUS ERRORS */
 
