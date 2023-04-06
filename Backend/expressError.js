@@ -30,6 +30,21 @@ class BadRequestError extends ExpressError {
 }
 module.exports.BadRequestError = BadRequestError;
 
+class DuplicateUsernameError extends ExpressError {
+  constructor(message="There is already a user registered with this username, please pick another one") {
+    super(message, 400);
+  }
+}
+module.exports.DuplicateUsernameError = DuplicateUsernameError; 
+
+
+class DuplicateEmailError extends ExpressError {
+  constructor(message="There is already a user registered with this email address, please log in with that email address or create a new account with another email address.") {
+    super(message, 400);
+  }
+}
+module.exports.DuplicateEmailError = DuplicateEmailError; 
+
 
 
 /** UNAUTHORIZED 401 STATUS ERRORS */
