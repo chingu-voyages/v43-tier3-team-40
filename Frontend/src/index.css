@@ -1,3 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@layer base {
+	html {
+		@apply bg-BlushingPink font-Poppins;
+	}
+}
+
+.auth-input {
+	@apply w-full border rounded px-3	py-2 text-gray-700 focus:outline-none;
+}
+.auth-button {
+	@apply w-full py-2 mt-8	mb-2 rounded-full bg-DeepIndigo text-gray-100	text-xl	text-center	focus:outline-none;
+}

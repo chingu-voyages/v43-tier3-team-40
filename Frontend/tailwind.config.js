@@ -1,11 +1,16 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}
+	content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+	theme: {
+		extend: {
+			colors: {
+				BlushingPink: 'rgba(242,230,230,1)',
+				DeepIndigo: 'rgba(47, 17, 96, 1)',
+			},
+			fontFamily: {
+				Poppins: ['Poppins', 'sans-serif'],
+			},
+		},
+	},
+	plugins: [],
+};
