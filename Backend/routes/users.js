@@ -29,7 +29,11 @@ router.post('/createUser', async (req, res, next) => {
       id: user.id 
     }, SECRET_KEY)
     res.status(201);
-    return res.json({token});
+    return res.json({
+      username: user.username,
+      email: user.email,
+      token
+    });
   } catch(err) {
     return next(err);
   }
