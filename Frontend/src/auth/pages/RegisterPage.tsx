@@ -5,7 +5,7 @@ import { useAuthContext } from '../../hooks';
 export const RegisterPage = () => {
 	const { startRegister } = useAuthContext();
 	const validationSchema = Yup.object({
-		name: Yup.string().min(5, 'Name must have at least 5 characters').required('Name is required.'),
+		username: Yup.string().min(6, 'Name must have at least 6 characters').required('Name is required.'),
 		email: Yup.string().email('Invalid email address').required('Email is required.'),
 		password: Yup.string().min(6, 'Password must have at least 6 characters.').required('Password is required'),
 		confirmPassword: Yup.string().oneOf([Yup.ref('password')], 'Password must match'),
@@ -13,13 +13,13 @@ export const RegisterPage = () => {
 	return (
 		<>
 			<Formik
-				initialValues={{ name: '', email: '', password: '', confirmPassword: '' }}
-				onSubmit={({ confirmPassword, email, name, password }) => {
-					startRegister(name, email, password);
+				initialValues={{ username: '', email: '', password: '', confirmPassword: '' }}
+				onSubmit={({  username, email, password }) => {
+					startRegister(username, email, password);
 				}}
 				validationSchema={validationSchema}>
 				<div className='w-full h-screen flex items-center justify-center px-5'>
-					<Form className='w-full md:w-1/3 rounded-lg border-4 border-DeepIndigo'>
+					<Form className='w-[375px] rounded-lg border-4 border-DeepIndigo'>
 						<div className='flex font-bold justify-center mt-6'>
 							<h1 className='text-2xl text-center'>Welcome to BodyBalance!</h1>
 						</div>
@@ -27,9 +27,9 @@ export const RegisterPage = () => {
 							<h2 className='text-md text-center text-DeepIndigo mb-8'>Fill the fields to create an account.</h2>
 							<div className='w-full mb-2'>
 								<div className='flex flex-col'>
-									<label htmlFor='name'>Name</label>
-									<Field type='text' name='name' placeholder='John Doe' className='auth-input' />
-									<ErrorMessage name='name' component='span' className='text-red-600' />
+									<label htmlFor='username'>Name</label>
+									<Field type='text' name='username' placeholder='John Doe' className='auth-input' />
+									<ErrorMessage name='username' component='span' className='text-red-600' />
 								</div>
 							</div>
 							<div className='w-full mb-2'>

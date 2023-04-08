@@ -1,6 +1,8 @@
 import { PropsWithChildren, useReducer } from 'react';
 import { AuthContext, authReducer } from '.';
 import { IUser } from '../../interfaces';
+import axios from 'axios';
+import { authApi } from '../../api';
 export interface AuthState {
 	status: 'authenticated' | 'not-authenticated' | 'checking';
 	user?: IUser;
@@ -26,19 +28,22 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 		//! If credentials are bad or something is wrong from the backend, dispatch the logout.
 
 		setTimeout(() => {
-			dispatch({ type: '[Auth] - Login', payload: { email, name: password } });
-			
+			dispatch({ type: '[Auth] - Login', payload: { email, username: password } });
 		}, 2000);
 	};
 
 	//startRegister function is very similar to login, but in this case
 	//it should call the createUser endpoint and make the login if everything is correct, or logout if something goes wrong
-	const startRegister = (name: string, email: string, password: string) => {
-		dispatch({ type: '[Auth] - Checking credentials' });
-		setTimeout(() => {
-			dispatch({ type: '[Auth] - Login', payload: { email, name } });
-			
-		}, 2000);
+	const startRegister = async (username: string, email: string, password: string) => {
+		// dispatch({ type: '[Auth] - Checking credentials' });
+		try {
+			const {data} = await authApi.post('/createUser',{username,email,password})
+			console.log(data);
+		} catch (error) {
+			console.error(error);
+			//We should create a modal or a popover to provide the user information if something goes wrong.
+			dispatch({ type: '[Auth] - Logout' });
+		}
 	};
 
 	const logout = () => dispatch({ type: '[Auth] - Logout' });

@@ -17,7 +17,7 @@ export const LoginPage = () => {
 			}}
 			validationSchema={validationSchema}>
 			<div className='w-full h-screen flex items-center justify-center px-5'>
-				<Form className='w-full md:w-1/3 rounded-lg border-4 border-DeepIndigo'>
+				<Form className='w-[375px] rounded-lg border-4 border-DeepIndigo'>
 					<div className='flex font-bold justify-center mt-6 mb-6'>
 						<h1 className='text-2xl text-center'>Welcome to BodyBalance!</h1>
 					</div>
