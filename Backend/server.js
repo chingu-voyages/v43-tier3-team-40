@@ -1,4 +1,5 @@
-const express = require('express')
+const express = require('express');
+const cors = require('cors');
 
 const usersRouter = require('./routes/users');
 const { NotFoundError } = require('./expressError');
@@ -8,6 +9,12 @@ const app = express();
 
 // middleware
 app.use(express.json());
+app.use(cors());
+
+app.use((req, res, next) => {
+  console.log(req);
+  next();
+})
 
 
 // routes
