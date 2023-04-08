@@ -1,11 +1,12 @@
 // libraries
 const bcrypt = require('bcrypt');
 const { v4: uuid } = require('uuid');
+const jwt = require('jsonwebtoken');
 
 // local
-const { BCRYPT_WORK_FACTOR } = require('../config');
+const { SECRET_KEY, BCRYPT_WORK_FACTOR } = require('../config');
 const db = require('../db.js');
-const { ExpressError, BadRequestError, DuplicateUsernameError, DuplicateEmailError, BadUsernameError, BadEmailError, BadPasswordError } = require('../expressError.js')
+const { ExpressError, BadRequestError, DuplicateUsernameError, DuplicateEmailError, BadUsernameError, BadEmailError, BadPasswordError, InvalidTokenError, UnauthorizedError, InvalidUserError, BadLoginError } = require('../expressError.js')
 
 
 /** 
@@ -67,3 +68,91 @@ const createUser = async (username, email, password) => {
   
 }
 module.exports.createUser = createUser;
+
+
+
+
+const getUserById = async (id) => {
+  try {
+    const searchQuery = await db.query(
+      `SELECT id, username, email FROM users WHERE id=$1;`, 
+      [id]
+    );
+    if (searchQuery.rows.length !== 1) {
+      throw new InvalidUserError();
+    } else return searchQuery.rows[0];
+  } catch(err) {
+    throw err;
+  }
+}
+module.exports.getUserById = getUserById;
+
+
+
+const getUserByUsername = async (username) => {
+  try {
+    const searchQuery = await db.query(
+      `SELECT id, username, email FROM users WHERE username=$1;`, 
+      [username]
+    );
+    if (searchQuery.rows.length !== 1) {
+      throw new InvalidUserError();
+    } else return searchQuery.rows[0];
+  } catch(err) {
+    throw err;
+  }
+}
+module.exports.getUserByUsername = getUserByUsername;
+
+
+
+const checkToken = async (token) => {
+  try {
+    // will throw "Uncaught JsonWebTokenError: invalid signature" on failure
+
+    const {username, id} = jwt.verify(token, SECRET_KEY);
+
+    const user = await getUserById(id);
+
+    if (user.username !== username) throw new InvalidTokenError();
+
+    else return user;
+
+  } catch(err) {
+    console.log(err);
+    if (err.message === "Uncaught JsonWebTokenError: invalid signature") {
+      throw new InvalidTokenError();
+    } else throw new UnauthorizedError(message=err.message);
+  }
+}
+module.exports.checkToken = checkToken;
+
+
+
+
+const login = async (username, password) => {
+  try {
+    const searchQuery = await db.query(
+      `SELECT id, username, email, hashed_password FROM users WHERE username=$1;`, 
+      [username]
+    );
+    
+    let user;
+    
+    if (searchQuery.rows.length !== 1) {
+      throw new InvalidUserError();
+    } else user = searchQuery.rows[0];
+
+    if (bcrypt.compareSync(password, user.hashed_password)) {
+      // sanitize user of hashed_password
+      delete user.hashed_password;
+      return user;
+    } else {
+      throw new BadLoginError();
+    }
+
+  } catch(err) {
+    throw err;
+  }
+}
+module.exports.login = login;

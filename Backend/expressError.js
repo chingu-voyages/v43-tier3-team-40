@@ -79,6 +79,22 @@ class UnauthorizedError extends ExpressError {
 }
 module.exports.UnauthorizedError = UnauthorizedError;
 
+
+class InvalidTokenError extends ExpressError {
+  constructor(message="Cannot proceed, please log in and try again") {
+    super(message, 401)
+  }
+}
+module.exports.InvalidTokenError = InvalidTokenError;
+
+
+class InvalidUserError extends ExpressError {
+  constructor(message="Invalid user") {
+    super(message, 401)
+  }
+}
+module.exports.InvalidUserError = InvalidUserError;
+
 class BadLoginError extends ExpressError {
   constructor(message="Login failed, please try again") {
     super(message, 401)

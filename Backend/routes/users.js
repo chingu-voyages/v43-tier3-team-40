@@ -2,8 +2,10 @@ const { Router } = require('express');
 const jwt = require('jsonwebtoken');
 const {SECRET_KEY} = require('../config.js');
 
-const { ExpressError, BadRequestError } = require('../expressError');
-const { createUser } = require('../models/User');
+const { ExpressError, BadRequestError } = require('../expressError.js');
+const User = require('../models/User');
+const checkToken = require('../middleware/checkToken.js');
+
 
 const router = new Router();
 
@@ -22,7 +24,7 @@ router.post('/createUser', async (req, res, next) => {
   try {
     console.log(req.body);
     const {username, email, password} = req.body;
-    let user = await createUser(username, email, password);
+    let user = await User.createUser(username, email, password);
     const token = jwt.sign({
       username: user.username,
       email: user.email,
@@ -30,10 +32,48 @@ router.post('/createUser', async (req, res, next) => {
     }, SECRET_KEY)
     res.status(201);
     return res.json({
+      id: user.id,
       username: user.username,
       email: user.email,
       token
     });
+  } catch(err) {
+    return next(err);
+  }
+})
+
+
+
+router.post('/login', async (req, res, next) => {
+  try {
+    const {username, password} = req.body;
+
+    const user = await User.login(username, password);
+    const token = jwt.sign(user, SECRET_KEY);
+    res.json({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      token
+    })
+
+  } catch(err) {
+    return next(err);
+  }
+})
+
+
+
+router.get('/renew', checkToken, async (req, res, next) => {
+  try {
+    const token = jwt.sign(req.user, SECRET_KEY);
+    return res.json({
+      id: req.user.id,
+      username: req.user.username,
+      email: req.user.email,
+      token
+    });
+
   } catch(err) {
     return next(err);
   }
