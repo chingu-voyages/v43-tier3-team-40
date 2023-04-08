@@ -47,7 +47,7 @@ const seed = async() => {
      * possible
      */
     await db.query(`CREATE TABLE user_profiles(
-      id INTEGER PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       user_id VARCHAR REFERENCES users (id),
       avatar VARCHAR,
       height INTEGER,
@@ -60,7 +60,8 @@ const seed = async() => {
 
     // days table
     await db.query(`CREATE TABLE days(
-      id INTEGER PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
+      date DATE,
       user_id VARCHAR REFERENCES users (id)
       );`
     )
@@ -69,7 +70,7 @@ const seed = async() => {
 
     // activities table
     await db.query(`CREATE TABLE activities(
-      id INTEGER PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       day_id INTEGER REFERENCES days (id),
       category VARCHAR,
       start_time TIMESTAMPTZ,
@@ -90,7 +91,7 @@ const seed = async() => {
 
     // meals table
     await db.query(`CREATE TABLE meals(
-      id INTEGER PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       day_id INTEGER REFERENCES days(id),
       calories INTEGER,
       carbs INTEGER,
@@ -105,7 +106,7 @@ const seed = async() => {
 
     // sleeps table
     await db.query(`CREATE TABLE sleeps(
-      id INTEGER PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       day_id INTEGER REFERENCES days (id),
       start_time TIMESTAMPTZ,
       end_time TIMESTAMPTZ,

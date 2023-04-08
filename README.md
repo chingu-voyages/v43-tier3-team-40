@@ -36,4 +36,4 @@ Add-project-description-here
 3. To seed, type `node` into the terminal to enter the NodeJS console
 4. Type `const seed = require('./seed/seed');` to import seed
 5. Type `seed()` to run the seed function. You should see in the log as all of the tables are created. This will seed the test table
-6. To seed the production table, repeat this process, but type `process.env.mode="production";` before importing seed.
+6. To seed the production table, repeat this process, but type `process.env.MODE="production";` before importing seed.
