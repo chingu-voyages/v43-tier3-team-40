@@ -1,11 +1,13 @@
 import { PropsWithChildren, useReducer } from 'react';
-import { AuthContext, authReducer } from '.';
-import { IUser } from '../../interfaces';
-import axios from 'axios';
 import { authApi } from '../../api';
+import { IUser } from '../../interfaces';
+import { AuthContext, authReducer } from './';
 export interface AuthState {
 	status: 'authenticated' | 'not-authenticated' | 'checking';
 	user?: IUser;
+}
+interface RegisterResponse extends IUser {
+	token: string;
 }
 
 const Auth_INITIAL_STATE: AuthState = {
@@ -31,14 +33,13 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 			dispatch({ type: '[Auth] - Login', payload: { email, username: password } });
 		}, 2000);
 	};
-
-	//startRegister function is very similar to login, but in this case
-	//it should call the createUser endpoint and make the login if everything is correct, or logout if something goes wrong
-	const startRegister = async (username: string, email: string, password: string) => {
-		// dispatch({ type: '[Auth] - Checking credentials' });
+	const startRegister = async (username: string, email: string, password: string): Promise<void> => {
+		dispatch({ type: '[Auth] - Checking credentials' });
 		try {
-			const {data} = await authApi.post('/createUser',{username,email,password})
-			console.log(data);
+			const { data } = await authApi.post<RegisterResponse>('/createUser', { username, email, password });
+			const { token } = data;
+			localStorage.setItem('token', token);
+			dispatch({ type: '[Auth] - Login', payload: { email, username } });
 		} catch (error) {
 			console.error(error);
 			//We should create a modal or a popover to provide the user information if something goes wrong.

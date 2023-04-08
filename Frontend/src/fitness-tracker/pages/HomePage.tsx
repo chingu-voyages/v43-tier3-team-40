@@ -7,7 +7,7 @@ export const HomePage = () => {
 			<h1>HomePage</h1>
 			{user && (
 				<h1>
-					User name:{user.name} -- User email:{user.email}
+					User name:{user.username} -- User email:{user.email}
 				</h1>
 			)}
 		</div>
