@@ -1,10 +1,11 @@
 // libraries
+const { DatabaseError } = require('pg');
 
 
 // local
 const db = require('../db.js');
 const dynamicUpdateQuery = require('../helpers/dynamicUpdateQuery.js');
-const { InvalidUserError } = require('../expressError.js');
+const { InvalidUserError, BadRequestError } = require('../expressError.js');
 
 
 const getUserProfileByUserId = async (user_id) => {
@@ -12,7 +13,10 @@ const getUserProfileByUserId = async (user_id) => {
     const profileQuery = await db.query(
       `SELECT * FROM user_profiles WHERE user_id=$1
       `, [user_id]);
-    return profileQuery.rows[0];
+    const profile = profileQuery.rows[0];
+    
+    if (!profile) throw new InvalidUserError();
+    else return profile;
   } catch (err) {
     throw err;
   }
@@ -39,11 +43,12 @@ const editUserProfile = async (body, user_id) => {
       weight: body.weight ? body.weight : null,
       age: body.age ? body.age : null
     }
-    const queryString = dynamicUpdateQuery(updateObj, 'user_profiles', 'user_id', user_id);
-    const updateQuery = await db.query(queryString);
+    const queryArr = dynamicUpdateQuery(updateObj, 'user_profiles', 'user_id', user_id);
+    const updateQuery = await db.query(...queryArr);
     if (updateQuery.rows.length !== 1) throw new InvalidUserError();
     else return updateQuery.rows[0];
   } catch(err) {
+    if (err instanceof DatabaseError) throw new BadRequestError();
     throw err;
   }
 }
