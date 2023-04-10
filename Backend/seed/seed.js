@@ -18,8 +18,8 @@ const seed = async() => {
     await db.query('DROP TABLE IF EXISTS meals CASCADE');
     await db.query('DROP TABLE IF EXISTS sleeps CASCADE');
 
-    // users table
-    /**
+
+    /** users table
      * NOTE: user_id changed to text to allow uuid and prevent
      * anyone from inferring the number of users
      */
@@ -47,8 +47,8 @@ const seed = async() => {
      * possible
      */
     await db.query(`CREATE TABLE user_profiles(
-      id INTEGER PRIMARY KEY,
-      user_id VARCHAR REFERENCES users (id),
+      id SERIAL PRIMARY KEY,
+      user_id VARCHAR REFERENCES users (id) ON DELETE CASCADE,
       avatar VARCHAR,
       height INTEGER,
       weight INTEGER,
@@ -60,8 +60,9 @@ const seed = async() => {
 
     // days table
     await db.query(`CREATE TABLE days(
-      id INTEGER PRIMARY KEY,
-      user_id VARCHAR REFERENCES users (id)
+      id SERIAL PRIMARY KEY,
+      date DATE,
+      user_id VARCHAR REFERENCES users (id) 
       );`
     )
 
@@ -69,8 +70,8 @@ const seed = async() => {
 
     // activities table
     await db.query(`CREATE TABLE activities(
-      id INTEGER PRIMARY KEY,
-      day_id INTEGER REFERENCES days (id),
+      id SERIAL PRIMARY KEY,
+      day_id INTEGER REFERENCES days (id) ON DELETE CASCADE,
       category VARCHAR,
       start_time TIMESTAMPTZ,
       end_time TIMESTAMPTZ,
@@ -90,8 +91,8 @@ const seed = async() => {
 
     // meals table
     await db.query(`CREATE TABLE meals(
-      id INTEGER PRIMARY KEY,
-      day_id INTEGER REFERENCES days(id),
+      id SERIAL PRIMARY KEY,
+      day_id INTEGER REFERENCES days(id) ON DELETE CASCADE,
       calories INTEGER,
       carbs INTEGER,
       protein INTEGER,
@@ -105,8 +106,8 @@ const seed = async() => {
 
     // sleeps table
     await db.query(`CREATE TABLE sleeps(
-      id INTEGER PRIMARY KEY,
-      day_id INTEGER REFERENCES days (id),
+      id SERIAL PRIMARY KEY,
+      day_id INTEGER REFERENCES days (id) ON DELETE CASCADE,
       start_time TIMESTAMPTZ,
       end_time TIMESTAMPTZ,
       success_rating INTEGER,

@@ -4,6 +4,7 @@ const {SECRET_KEY} = require('../config.js');
 
 const { ExpressError, BadRequestError } = require('../expressError.js');
 const User = require('../models/User');
+const UserProfile = require('../models/UserProfile.js');
 const checkToken = require('../middleware/checkToken.js');
 
 
@@ -74,6 +75,24 @@ router.get('/renew', checkToken, async (req, res, next) => {
       token
     });
 
+  } catch(err) {
+    return next(err);
+  }
+})
+
+
+
+router.put('/editUser', checkToken, async (req, res, next) => {
+  try {
+    const editQuery = await UserProfile.editUserProfile(req.body, req.user.id);
+    const token = jwt.sign(req.user, SECRET_KEY);
+    res.json({
+      ...editQuery,
+      id: req.user.id,
+      username: req.user.username,
+      email: req.user.email,
+      token
+    })
   } catch(err) {
     return next(err);
   }

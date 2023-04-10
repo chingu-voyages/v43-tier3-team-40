@@ -33,7 +33,16 @@ const createUser = async (username, email, password) => {
       VALUES($1, $2, $3, $4)
       RETURNING id, username, email;`, 
       [id, username, email, hashed_password]);
-    return insertQuery.rows[0];
+
+
+    const user = insertQuery.rows[0];
+
+    // PostgreSQL query for user profile
+    const profileInsertQuery = await db.query(`INSERT INTO user_profiles
+      (user_id) VALUES ($1)`, [user.id]
+    )
+    
+    return user;
 
   } catch(err) {
 
