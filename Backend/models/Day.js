@@ -32,3 +32,38 @@ const addDay = async (date, user_id) => {
 module.exports.addDay = addDay;
 
 
+const getDay = async (date, user_id) => {
+  try {
+    const dayQuery = await db.query(
+      `SELECT * FROM days WHERE date=$1 AND user_id=$2`,
+      [date, user_id]
+    )
+    return dayQuery.rows[0];
+  } catch(err) {
+    throw err;
+  }
+}
+module.exports.getDay = getDay;
+
+
+const getFullDay = async (date, user_id) => {
+  try {
+    const day_id = await getDay(date, user_id);
+    
+    const activitiesQuery = db.query(`SELECT * FROM activities WHERE day_id=$1`, [day_id])
+    const mealsQuery = db.query(`SELECT * FROM meals WHERE day_id=$1`, [day_id])
+    const sleepsQuery = db.query(`SELECT * FROM sleeps WHERE day_id=$1`, [day_id])
+
+    await Promise.all([activitiesQuery, mealsQuery, sleepsQuery])
+
+    return({
+      activities: activitiesQuery.rows,
+      meals: mealsQuery.rows,
+      sleeps: sleepsQuery.rows 
+    })
+
+  } catch(err) {
+    throw err;
+  }
+}
+module.exports.getFullDay = getFullDay;
