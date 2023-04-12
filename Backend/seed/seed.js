@@ -62,7 +62,7 @@ const seed = async() => {
     await db.query(`CREATE TABLE days(
       id SERIAL PRIMARY KEY,
       date DATE,
-      user_id VARCHAR REFERENCES users (id) 
+      user_id VARCHAR REFERENCES users (id) ON DELETE CASCADE
       );`
     )
 
