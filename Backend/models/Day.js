@@ -1,4 +1,4 @@
-const {InvalidUserError, BadRequestError} = require('../expressError');
+const {InvalidUserError, BadRequestError, NotFoundError} = require('../expressError');
 const db = require('../db');
 
 /**
@@ -38,7 +38,10 @@ const getDay = async (date, user_id) => {
       `SELECT * FROM days WHERE date=$1 AND user_id=$2`,
       [date, user_id]
     )
-    return dayQuery.rows[0];
+    if (dayQuery.rows.length !== 1) {
+      throw new NotFoundError();
+    }
+    else return dayQuery.rows[0];
   } catch(err) {
     throw err;
   }
@@ -48,18 +51,19 @@ module.exports.getDay = getDay;
 
 const getFullDay = async (date, user_id) => {
   try {
-    const day_id = await getDay(date, user_id);
+    const day = await getDay(date, user_id);
+    const day_id = day.id;
     
-    const activitiesQuery = db.query(`SELECT * FROM activities WHERE day_id=$1`, [day_id])
-    const mealsQuery = db.query(`SELECT * FROM meals WHERE day_id=$1`, [day_id])
-    const sleepsQuery = db.query(`SELECT * FROM sleeps WHERE day_id=$1`, [day_id])
+    const activitiesQuery = db.query(`SELECT * FROM activities WHERE day_id=$1;`, [day_id])
+    const mealsQuery = db.query(`SELECT * FROM meals WHERE day_id=$1;`, [day_id])
+    const sleepsQuery = db.query(`SELECT * FROM sleeps WHERE day_id=$1;`, [day_id])
 
-    await Promise.all([activitiesQuery, mealsQuery, sleepsQuery])
+    const [activities, meals, sleeps] = await Promise.all([activitiesQuery, mealsQuery, sleepsQuery])
 
     return({
-      activities: activitiesQuery.rows,
-      meals: mealsQuery.rows,
-      sleeps: sleepsQuery.rows 
+      activities: activities.rows,
+      meals: meals.rows,
+      sleeps: sleeps.rows 
     })
 
   } catch(err) {
