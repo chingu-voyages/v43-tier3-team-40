@@ -2,9 +2,12 @@ const {InvalidUserError, BadRequestError, NotFoundError} = require('../expressEr
 const db = require('../db');
 
 /**
- * 
+ * Checks for a document in the days table with the
+ * given date and user_id. If it exists, then it is
+ * returned. If not, then it is created and returned.
  * @param {Date} date 
  * @param {uuid} user_id 
+ * @returns {day}
  */
 const addDay = async (date, user_id) => {
   try {
@@ -32,6 +35,14 @@ const addDay = async (date, user_id) => {
 module.exports.addDay = addDay;
 
 
+/**
+ * Checks for a day with the given date
+ * and returns it if it exists, otherwise
+ * throws a NotFoundError.
+ * @param {Date} date 
+ * @param {uuid} user_id 
+ * @returns {day}
+ */
 const getDay = async (date, user_id) => {
   try {
     const dayQuery = await db.query(
@@ -49,21 +60,31 @@ const getDay = async (date, user_id) => {
 module.exports.getDay = getDay;
 
 
+/**
+ * Checks if a day document exists, and if it does, returns an
+ * object that contains all activities, meals, and sleeps
+ * associated with that day
+ * 
+ * @param {Date} date 
+ * @param {uuid} user_id 
+ * @returns {Object} object with three arrays: 
+ * activities, meals, sleeps
+ */
 const getFullDay = async (date, user_id) => {
   try {
     const day = await getDay(date, user_id);
     const day_id = day.id;
-    
+
     const activitiesQuery = db.query(`SELECT * FROM activities WHERE day_id=$1;`, [day_id])
     const mealsQuery = db.query(`SELECT * FROM meals WHERE day_id=$1;`, [day_id])
     const sleepsQuery = db.query(`SELECT * FROM sleeps WHERE day_id=$1;`, [day_id])
 
-    const [activities, meals, sleeps] = await Promise.all([activitiesQuery, mealsQuery, sleepsQuery])
+    const [activitiesAnswer, mealsAnswer, sleepsAnswer] = await Promise.all([activitiesQuery, mealsQuery, sleepsQuery])
 
     return({
-      activities: activities.rows,
-      meals: meals.rows,
-      sleeps: sleeps.rows 
+      activities: activitiesAnswer.rows,
+      meals: mealsAnswer.rows,
+      sleeps: sleepsAnswer.rows 
     })
 
   } catch(err) {
