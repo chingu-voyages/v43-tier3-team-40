@@ -81,6 +81,12 @@ describe("Successfully gets a day with getDay", function() {
     const badPromise = Day.getDay(new Date(1970, 0, 15), testUser.id);
     await expect(badPromise).rejects.toThrow(NotFoundError);
   })
+
+  test("Throws a NotFoundError searching for a user that does not exist", async function() {
+    // date from prior test, should exist, but cannot refer to variable
+    const badPromise = Day.getDay(new Date(2023, 3, 5), 'bad-user-id');
+    await expect(badPromise).rejects.toThrow(NotFoundError);
+  })
 })
 
 
@@ -88,6 +94,7 @@ describe("Successfully gets a day's details with getFullDay", function() {
 
   let firstDate;
   let secondDate;
+  let secondUser;
 
   const testUserDay1Activities = [];
   const testUserDay1Meals = [];
@@ -107,7 +114,7 @@ describe("Successfully gets a day's details with getFullDay", function() {
 
   beforeAll(async function() {
     await db.query(`DELETE FROM users WHERE username=$1`, ['seconduser'])
-    const secondUser = await User.createUser('seconduser', 'seconduser@aol.com', 'password123');
+    secondUser = await User.createUser('seconduser', 'seconduser@aol.com', 'password123');
     
     firstDate = new Date(2020, 9, 31, 15, 35, 127);
     secondDate = new Date(2021, 10, 27, 13, 541);
@@ -132,31 +139,60 @@ describe("Successfully gets a day's details with getFullDay", function() {
 
       db.query(`INSERT INTO meals (day_id, calories, carbs, protein, fat, dietary_restrictions, time) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;`, [testUserDay1.id, 1000, 200, 200, 10, "lots of broccoli", new Date(firstDate.valueOf() - (120 * 60 * 1000))]),
 
-      db.query(`INSERT INTO sleeps (day_id, start_time, end_time, success_rating) VALUES ($1, $2, $3, $4) RETURNING *;`, [testUserDay1.id, new Date(firstDate.valueOf() + (180 * 60 * 1000)), new Date(firstDate.valueOf() + (640 * 60 * 1000)), 10])
+      db.query(`INSERT INTO sleeps (day_id, start_time, end_time, success_rating) VALUES ($1, $2, $3, $4) RETURNING *;`, [secondUserDay1.id, new Date(firstDate.valueOf() + (180 * 60 * 1000)), new Date(firstDate.valueOf() + (640 * 60 * 1000)), 10])
     ])
 
-    testUserDay1Activities.push(tud1a1);
-    testUserDay1Activities.push(tud1a2);
-    testUserDay2Activities.push(tud2a1);
-    secondUserDay1Activities.push(sud1a1);
-    secondUserDay2Activities.push(sud2a2);
-    testUserDay1Meals.push(tud1m1);
-    secondUserDay1Sleeps.push(sud1s1)
+    testUserDay1Activities.push(tud1a1.rows[0]);
+    testUserDay1Activities.push(tud1a2.rows[0]);
+    testUserDay2Activities.push(tud2a1.rows[0]);
+    secondUserDay1Activities.push(sud1a1.rows[0]);
+    secondUserDay2Activities.push(sud2a2.rows[0]);
+    testUserDay1Meals.push(tud1m1.rows[0]);
+    secondUserDay1Sleeps.push(sud1s1.rows[0]);
 
   })
 
 
   test("Gets all of testUser's activities, meals, and sleeps for the correct date, none for secondUser, none for other date", async function() {
-    const fd = await Day.getFullDay(firstDate, testUser.id);
-    console.log(fd);
-    expect(fd).toHaveProperty('activities');
-    expect(fd).toHaveProperty('meals');
-    expect(fd).toHaveProperty('sleeps');
+    let fd = await Day.getFullDay(firstDate, testUser.id);
+
+    expect(fd.activities).toEqual(testUserDay1Activities);
+    expect(fd.meals).toEqual(testUserDay1Meals);
+    expect(fd.sleeps).toEqual(testUserDay1Sleeps);
+
+    fd = await Day.getFullDay(secondDate, testUser.id);
+
+    expect(fd.activities).toEqual(testUserDay2Activities);
+    expect(fd.meals).toEqual(testUserDay2Meals);
+    expect(fd.sleeps).toEqual(testUserDay2Sleeps);
+
+
   })
 
 
   test("Gets all of secondUser's activities, meals, and sleeps for the correct date, none for testUser, none for other date", async function() {
+    let fd = await Day.getFullDay(firstDate, secondUser.id);
 
+    expect(fd.activities).toEqual(secondUserDay1Activities);
+    expect(fd.meals).toEqual(secondUserDay1Meals);
+    expect(fd.sleeps).toEqual(secondUserDay1Sleeps);
+
+    fd = await Day.getFullDay(secondDate, secondUser.id);
+
+    expect(fd.activities).toEqual(secondUserDay2Activities);
+    expect(fd.meals).toEqual(secondUserDay2Meals);
+    expect(fd.sleeps).toEqual(secondUserDay2Sleeps);
+  })
+
+
+  test("Throws a NotFoundError searching for a day that does not exist", async function() {
+    const badPromise = Day.getFullDay(new Date(1970, 0, 15), testUser.id);
+    await expect(badPromise).rejects.toThrow(NotFoundError);
+  })
+
+  test("Throws a NotFoundError searching for a user that does not exist", async function() {
+    const badPromise = Day.getFullDay(firstDate, 'bad-user-id');
+    await expect(badPromise).rejects.toThrow(NotFoundError);
   })
 
 })
