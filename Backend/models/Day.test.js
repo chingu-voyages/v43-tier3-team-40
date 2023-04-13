@@ -58,8 +58,15 @@ describe("Successfully adds a day with addDay", function() {
   })
 
   test("Throws a BadRequestError with an invalid date", async function() {
-    const badPromise = Day.addDay('August 35th', testUser.id);
-    await expect(badPromise).rejects.toThrow(BadRequestError);
+
+    let badDateStr = 'August 35th'
+    let badDate = new Date(badDateStr);
+    console.log(badDate.toString())
+    console.log(testUser.id);
+    console.log(badDate.toString() === "Invalid Date");
+
+    const badDatePromise = Day.addDay(badDateStr, testUser.id);
+    await expect(badDatePromise).rejects.toThrow(BadRequestError);
   })
 })
 

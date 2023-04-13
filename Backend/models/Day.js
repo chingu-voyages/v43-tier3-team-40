@@ -10,23 +10,36 @@ const db = require('../db');
  * @returns {day}
  */
 const addDay = async (date, user_id) => {
+
   try {
+
+    date = new Date(date); // cast to Date
+    if (date.toString() === "Invalid Date") {
+      throw new BadRequestError();
+    }
+
     const checkQuery = await db.query(
       `SELECT * FROM days WHERE date=$1 AND user_id=$2;`,
       [date, user_id]);
-    if (checkQuery.rows.length === 0) {
-      const addQuery = await db.query(`INSERT INTO days (date, user_id) 
-      VALUES ($1, $2)
-      RETURNING *;`, 
-      [date, user_id]);
+    
+      if (checkQuery.rows.length === 0) {
+      const addQuery = await db.query(
+        `INSERT INTO days (date, user_id) 
+        VALUES ($1, $2)
+        RETURNING *;`, 
+        [date, user_id]
+      );
       return addQuery.rows[0]
     }
-    else return checkQuery.rows[0]
+    
+    else return checkQuery.rows[0];
+
   } catch(err) {
+
     if (err.message.slice(0,20) === 'invalid input syntax') {
       throw new BadRequestError();
     }
-    else if (err.message = 'error: insert or update on table "days" violates foreign key constraint "days_user_id_fkey"') {
+    else if (err.message === "insert or update on table \"days\" violates foreign key constraint \"days_user_id_fkey\"") {
       throw new InvalidUserError();
     }
     else throw err;
@@ -44,6 +57,11 @@ module.exports.addDay = addDay;
  * @returns {day}
  */
 const getDay = async (date, user_id) => {
+
+  date = new Date(date); // cast to Date to make sure
+  if (date.toString() === "Invalid Date") throw new BadRequestError();
+
+
   try {
     const dayQuery = await db.query(
       `SELECT * FROM days WHERE date=$1 AND user_id=$2`,
@@ -67,12 +85,13 @@ module.exports.getDay = getDay;
  * 
  * @param {Date} date 
  * @param {uuid} user_id 
- * @returns {Object} object with three arrays: 
- * activities, meals, sleeps
+ * @returns {Object} object with day and three 
+ * arrays: activities, meals, sleeps
  */
 const getFullDay = async (date, user_id) => {
   try {
     const day = await getDay(date, user_id);
+    console.log(day);
     const day_id = day.id;
 
     const activitiesQuery = db.query(`SELECT * FROM activities WHERE day_id=$1;`, [day_id])
@@ -82,6 +101,7 @@ const getFullDay = async (date, user_id) => {
     const [activitiesAnswer, mealsAnswer, sleepsAnswer] = await Promise.all([activitiesQuery, mealsQuery, sleepsQuery])
 
     return({
+      day,
       activities: activitiesAnswer.rows,
       meals: mealsAnswer.rows,
       sleeps: sleepsAnswer.rows 
