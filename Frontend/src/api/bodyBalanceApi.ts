@@ -1,11 +1,11 @@
 import axios, { InternalAxiosRequestConfig } from 'axios';
 
-export const authApi = axios.create({
+export const bodyBalanceApi = axios.create({
 	//Base URL just for development.
-	baseURL: 'http://localhost:3000/users',
+	baseURL: 'http://localhost:3000',
 });
 
-authApi.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+bodyBalanceApi.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 	config.headers['x-token'] = localStorage.getItem('token');
 	return config;
 });
