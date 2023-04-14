@@ -39,7 +39,7 @@ router.post('/addDay', async (req, res, next) => {
 
 
 /**
- * POST /addDay
+ * GET /getFullDay
  * WARNING: THE TIME IN THE PARAM MUST INCLUDE A TIMEZONE
  * OFFSET SO THAT Date.parse() WILL READ THE CORRECT
  * DATE RELATIVE TO THE USER
@@ -54,7 +54,7 @@ router.get('/getFullDay/:date', async (req, res, next) => {
     const fullDay = await Day.getFullDay(req.params.date, req.user.id);
     const token = jwt.sign(req.user, SECRET_KEY);
     return res.json({
-      day: fullDay,
+      fullDay,
       id: req.user.id,
       username: req.user.username,
       email: req.user.email,
