@@ -1,5 +1,5 @@
 import { PropsWithChildren, useCallback, useEffect, useReducer } from 'react';
-import { authApi } from '../../api';
+import { bodyBalanceApi } from '../../api';
 import { IUser } from '../../interfaces';
 import { AuthContext, authReducer } from './';
 export interface AuthState {
@@ -20,7 +20,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 	const startLogin = async (username: string, password: string): Promise<void> => {
 		dispatch({ type: '[Auth] - Checking credentials' });
 		try {
-			const { data } = await authApi.post<AuthResponse>('/login', { username, password });
+			const { data } = await bodyBalanceApi.post<AuthResponse>('/users/login', { username, password });
 			const { token } = data;
 			localStorage.setItem('token', token);
 			dispatch({ type: '[Auth] - Login', payload: { email:data.email, username } });
@@ -34,7 +34,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 	const startRegister = async (username: string, email: string, password: string): Promise<void> => {
 		dispatch({ type: '[Auth] - Checking credentials' });
 		try {
-			const { data } = await authApi.post<AuthResponse>('/createUser', { username, email, password });
+			const { data } = await bodyBalanceApi.post<AuthResponse>('/users/createUser', { username, email, password });
 			const { token } = data;
 			localStorage.setItem('token', token);
 			dispatch({ type: '[Auth] - Login', payload: { email, username } });
@@ -52,7 +52,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 			return;
 		}
 		try {
-			const { data } = await authApi.get('/renew');
+			const { data } = await bodyBalanceApi.get('/users/renew');
 			const { username, email } = data;
 			localStorage.setItem('token', data.token);
 			dispatch({ type: '[Auth] - Login', payload: { email, username } });
