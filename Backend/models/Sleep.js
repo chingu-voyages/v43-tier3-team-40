@@ -11,7 +11,17 @@ const db = require('../db');
  */
 const getSleep = async (sleep_id) => {
   try {
-    const sleepQuery = await db.query(`SELECT * FROM sleeps WHERE id=$1`, [sleep_id])
+    const sleepQuery = await db.query(`
+      SELECT 
+        sleeps.id AS id,
+        day_id,
+        start_time,
+        end_time,
+        success_rating,
+        days.user_id AS user_id
+      FROM sleeps 
+      LEFT JOIN days ON sleeps.day_id=days.id 
+      WHERE sleeps.id=$1`, [sleep_id])
     if (sleepQuery.rows.length === 0) { 
       throw new NotFoundError()
     } 
