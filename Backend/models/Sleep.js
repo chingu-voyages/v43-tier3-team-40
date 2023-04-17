@@ -119,3 +119,21 @@ const editSleep = async (sleep_obj, sleep_id, user_id) => {
   }
 }
 module.exports.editSleep = editSleep;
+
+
+
+const deleteSleep = async (sleep_id, user_id) => {
+  try {
+    // make sure that this sleep belongs to this user
+    const foundSleep = await getSleep(sleep_id);
+    if (!foundSleep) throw new NotFoundError();
+    if (foundSleep.user_id !== user_id) throw new InvalidUserError();
+
+    const deleted_sleep = (await db.query(`DELETE FROM sleeps WHERE id = $1 RETURNING *;`, [sleep_id])).rows[0];
+    return deleted_sleep;
+
+  } catch(err) {
+    throw err;
+  }
+}
+module.exports.deleteSleep = deleteSleep;
