@@ -70,6 +70,13 @@ class BadPasswordError extends ExpressError {
 module.exports.BadPasswordError = BadPasswordError; 
 
 
+class BadDateError extends ExpressError {
+  constructor(message="Please make sure to include a valid time/date") {
+    super(message, 400);
+  }
+}
+module.exports.BadDateError = BadDateError;
+
 /** UNAUTHORIZED 401 STATUS ERRORS */
 
 class UnauthorizedError extends ExpressError {
