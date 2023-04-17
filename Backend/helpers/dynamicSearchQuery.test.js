@@ -104,44 +104,89 @@ describe("Generates the correct query strings and value arrays", function(){
 
 
   test("Works with valid meals query 1", function() {
-    // const query_arr = [
-    //   {
-    //     column_name: '',
-    //     comparison_operator: '',
-    //     comparison_value: ''
-    //   }
-    // ]
-    // const query = dynamicSearchQuery(query_arr, 'activities', user_id);
-    // expect(query[0]).toBe("");
-    // expect(query[1]).toEqual([]);
+    const query_arr = [
+    ]
+    const query = dynamicSearchQuery(query_arr, 'meals', user_id);
+    expect(query[0]).toBe("SELECT * FROM meals JOIN days ON meals.day_id = days.id WHERE user_id = $1;");
+    expect(query[1]).toEqual([user_id]);
   })
 
 
   test("Works with valid meals query 2", function() {
-    // const query_arr = [
-    //   {
-    //     column_name: '',
-    //     comparison_operator: '',
-    //     comparison_value: ''
-    //   }
-    // ]
-    // const query = dynamicSearchQuery(query_arr, 'activities', user_id);
-    // expect(query[0]).toBe("");
-    // expect(query[1]).toEqual([]);
+    const query_arr = [
+      {
+        column_name: 'id',
+        comparison_operator: '=',
+        comparison_value: 15
+      },
+			{
+        column_name: 'calories',
+        comparison_operator: '>=',
+        comparison_value: 100
+      },
+			{
+        column_name: 'carbs',
+        comparison_operator: '>',
+        comparison_value: 20
+      }
+    ]
+    const query = dynamicSearchQuery(query_arr, 'meals', user_id);
+    expect(query[0]).toBe("SELECT * FROM meals JOIN days ON meals.day_id = days.id WHERE user_id = $1 AND id = $2 AND calories >= $3 AND carbs > $4;");
+    expect(query[1]).toEqual([user_id, 15, 100, 20]);
   })
 
 
   test("Works with valid meals query 3", function() {
-    // const query_arr = [
-    //   {
-    //     column_name: '',
-    //     comparison_operator: '',
-    //     comparison_value: ''
-    //   }
-    // ]
-    // const query = dynamicSearchQuery(query_arr, 'activities', user_id);
-    // expect(query[0]).toBe("");
-    // expect(query[1]).toEqual([]);
+    const query_arr = [
+      {
+        column_name: 'id',
+        comparison_operator: '=',
+        comparison_value: 30
+      },
+			{
+        column_name: 'day_id',
+        comparison_operator: '<',
+        comparison_value: 500
+      },
+			{
+        column_name: 'calories',
+        comparison_operator: '>',
+        comparison_value: 750 
+      },
+			{
+        column_name: 'carbs',
+        comparison_operator: '==', // SHOULD FILTER OUT
+        comparison_value: 30
+      },
+			{
+        column_name: 'carbs',
+        comparison_operator: '=',
+        comparison_value: 30
+      },
+			{
+        column_name: 'protein',
+        comparison_operator: '<',
+        comparison_value: 15
+      },
+			{
+        column_name: 'fat',
+        comparison_operator: '>',
+        comparison_value: 20
+      },
+			{
+        column_name: 'dietary_restrictions',
+        comparison_operator: 'IS NULL',
+        comparison_value: ''
+      },
+			{
+        column_name: 'time',
+        comparison_operator: '>',
+        comparison_value: new Date('10-31-2020 8:00 PM')
+      }
+    ]
+    const query = dynamicSearchQuery(query_arr, 'meals', user_id);
+    expect(query[0]).toBe("SELECT * FROM meals JOIN days ON meals.day_id = days.id WHERE user_id = $1 AND id = $2 AND day_id < $3 AND calories > $4 AND carbs = $5 AND protein < $6 AND fat > $7 AND dietary_restrictions IS NULL $8 AND time > $9;");
+    expect(query[1]).toEqual([user_id, 30, 500, 750, 30, 15, 20, '', new Date('10-31-2020 8:00 PM')]);
   })
 
 
@@ -153,7 +198,7 @@ describe("Generates the correct query strings and value arrays", function(){
     //     comparison_value: ''
     //   }
     // ]
-    // const query = dynamicSearchQuery(query_arr, 'activities', user_id);
+    // const query = dynamicSearchQuery(query_arr, 'sleeps', user_id);
     // expect(query[0]).toBe("");
     // expect(query[1]).toEqual([]);
   })
@@ -167,7 +212,7 @@ describe("Generates the correct query strings and value arrays", function(){
     //     comparison_value: ''
     //   }
     // ]
-    // const query = dynamicSearchQuery(query_arr, 'activities', user_id);
+    // const query = dynamicSearchQuery(query_arr, 'sleeps', user_id);
     // expect(query[0]).toBe("");
     // expect(query[1]).toEqual([]);
   })
@@ -181,7 +226,7 @@ describe("Generates the correct query strings and value arrays", function(){
     //     comparison_value: ''
     //   }
     // ]
-    // const query = dynamicSearchQuery(query_arr, 'activities', user_id);
+    // const query = dynamicSearchQuery(query_arr, 'sleeps', user_id);
     // expect(query[0]).toBe("");
     // expect(query[1]).toEqual([]);
   })
