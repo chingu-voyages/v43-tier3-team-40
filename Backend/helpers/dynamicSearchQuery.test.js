@@ -2,14 +2,7 @@ const { BadRequestError } = require('../expressError');
 const dynamicSearchQuery = require('./dynamicSearchQuery');
 
 
-/**
-TEMPLATE
-{
-  column_name: '',
-  comparison_operator: '',
-  comparison_value: ''
-}
- */
+
 
 // standard to use across all tests, actual queries not tested here
 const user_id = 'user-id'
@@ -191,44 +184,65 @@ describe("Generates the correct query strings and value arrays", function(){
 
 
   test("Works with valid sleeps query 1", function() {
-    // const query_arr = [
-    //   {
-    //     column_name: '',
-    //     comparison_operator: '',
-    //     comparison_value: ''
-    //   }
-    // ]
-    // const query = dynamicSearchQuery(query_arr, 'sleeps', user_id);
-    // expect(query[0]).toBe("");
-    // expect(query[1]).toEqual([]);
+    const query_arr = [
+    ]
+    const query = dynamicSearchQuery(query_arr, 'sleeps', user_id);
+    expect(query[0]).toBe("SELECT * FROM sleeps JOIN days ON sleeps.day_id = days.id WHERE user_id = $1;");
+    expect(query[1]).toEqual([user_id]);
   })
 
 
   test("Works with valid sleeps query 2", function() {
-    // const query_arr = [
-    //   {
-    //     column_name: '',
-    //     comparison_operator: '',
-    //     comparison_value: ''
-    //   }
-    // ]
-    // const query = dynamicSearchQuery(query_arr, 'sleeps', user_id);
-    // expect(query[0]).toBe("");
-    // expect(query[1]).toEqual([]);
+    const query_arr = [
+      {
+        column_name: 'start_time',
+        comparison_operator: '>',
+        comparison_value: new Date('10-31-2020 8:00 PM')
+      },
+			{
+        column_name: 'end_time',
+        comparison_operator: '<',
+        comparison_value: new Date('11-1-2020 12:00 PM')
+      }
+    ]
+    const query = dynamicSearchQuery(query_arr, 'sleeps', user_id);
+    expect(query[0]).toBe("SELECT * FROM sleeps JOIN days ON sleeps.day_id = days.id WHERE user_id = $1 AND start_time > $2 AND end_time < $3;");
+    expect(query[1]).toEqual([user_id, new Date('10-31-2020 8:00 PM'), new Date('11-1-2020 12:00 PM')]);
   })
 
 
   test("Works with valid sleeps query 3", function() {
-    // const query_arr = [
-    //   {
-    //     column_name: '',
-    //     comparison_operator: '',
-    //     comparison_value: ''
-    //   }
-    // ]
-    // const query = dynamicSearchQuery(query_arr, 'sleeps', user_id);
-    // expect(query[0]).toBe("");
-    // expect(query[1]).toEqual([]);
+    const query_arr = [
+      {
+        column_name: 'id',
+        comparison_operator: 'ILIKE', // SHOULD FILTER OUT
+        comparison_value: 20
+      },
+			{
+        column_name: 'day_id',
+        comparison_operator: '=',
+        comparison_value: 30
+      },
+			{
+        column_name: 'start_time',
+        comparison_operator: '>',
+        comparison_value: new Date("01-01-1980")
+      },
+			{
+        column_name: 'end_time',
+        comparison_operator: 'IS NULL', // SHOULD FILTER OUT
+        comparison_value: ''
+      },
+			{
+        column_name: 'success_rating',
+        comparison_operator: '=',
+        comparison_value: 10
+      },
+
+    ]
+    const query = dynamicSearchQuery(query_arr, 'sleeps', user_id);
+    expect(query[0]).toBe("SELECT * FROM sleeps JOIN days ON sleeps.day_id = days.id WHERE user_id = $1 AND day_id = $2 AND start_time > $3 AND success_rating = $4;");
+    expect(query[1]).toEqual([user_id, 30, new Date("01-01-1980"), 10]);
   })
 
 
@@ -243,7 +257,7 @@ describe("Generates the correct query strings and value arrays", function(){
     function badTable() {
       dynamicSearchQuery(query_arr, 'bad_table', user_id)
     }
-    expect(badTable).toThrow();
+    expect(badTable).toThrow(BadRequestError);
   })
 
 })

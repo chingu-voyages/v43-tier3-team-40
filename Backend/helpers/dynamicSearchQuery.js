@@ -5,6 +5,7 @@ const MEALS = 'meals';
 const SLEEPS = 'sleeps';
 
 
+// TABLE SUMMARY:
 // id SERIAL PRIMARY KEY,
 // day_id INTEGER REFERENCES days (id) ON DELETE CASCADE,
 // category VARCHAR,
@@ -32,7 +33,7 @@ const filterActivityQuery = (query_arr) => {
   })
 }
 
-// id SERIAL PRIMARY KEY,
+// TABLE SUMMARY:
 // day_id INTEGER REFERENCES days(id) ON DELETE CASCADE,
 // calories INTEGER,
 // carbs INTEGER,
@@ -60,6 +61,8 @@ const filterMealQuery = (query_arr) => {
   })
 }
 
+
+// TABLE SUMMARY:
 // id SERIAL PRIMARY KEY,
 // day_id INTEGER REFERENCES days (id) ON DELETE CASCADE,
 // start_time TIMESTAMPTZ,
@@ -78,6 +81,16 @@ const filterSleepQuery = (query_arr) => {
   })
 }
 
+
+/**
+ * Takes an array of queries, determines the correct function
+ * to call for filtering them, then calls it, returning a
+ * filtered version of the array with only permissible 
+ * query objects
+ * @param {Array} query_arr 
+ * @param {String} table_name 
+ * @returns {filter}
+ */
 const filterValidQuery = (query_arr, table_name) => {
   const queryFilters = {}
   queryFilters[ACTIVITIES] = filterActivityQuery;
@@ -93,7 +106,18 @@ const filterValidQuery = (query_arr, table_name) => {
 }
 
 
-
+/**
+ * Takes an array of query objects, the name of the
+ * table to check, and the user_id. Calls the correct
+ * filter function to get a filtered and permissible 
+ * array of queries (no invalid column names or operations)
+ * and then puts all information together to generate an
+ * array with the query string and the query values to use
+ * @param {Array} query_arr 
+ * @param {String} table_name 
+ * @param {UUID} user_id 
+ * @returns {[filterQueryString, filterQueryValues]}
+ */
 const dynamicSearchQuery = (query_arr, table_name, user_id) => {
   let query_str = `SELECT * FROM ${table_name} JOIN days ON ${table_name}.day_id = days.id WHERE `
   let value_arr = [user_id];
@@ -125,41 +149,3 @@ module.exports = dynamicSearchQuery;
 
 
 
-
-/** 
-dynamicSearchQuery = require('./helpers/dynamicSearchQuery')
-arr = dynamicSearchQuery([], 'sleeps')
-
-
-query_arr = [
-  {
-    column_name: 
-    comparison_operator:
-    comparison_value:
-  }
-]
-
-
-query_arr = [
-  {
-    column_name: "day_id",
-    comparison_operator: ">",
-    comparison_value: 10
-  },
-  {
-    column_name: "day_id",
-    comparison_operator: "IS NULL",
-    comparison_value: 10
-  },
-  {
-    column_name: "day_id",
-    comparison_operator: "IS NULL",
-    comparison_value: undefined
-  },
-  {
-    column_name: "user_id",
-    comparison_operator: "IS NULL",
-    comparison_value: undefined
-  }
-]
-*/
