@@ -29,7 +29,7 @@ describe("Generates the correct query strings and value arrays", function(){
         comparison_value: new Date('10-31-2020 5:00 PM')
       },
       {
-        column_name: 'heart_beats', // THIS SHOULD BE IGNORED!
+        column_name: 'heart_beats', // THIS SHOULD BE FILTERED OUT!
         comparison_operator: '>',
         comparison_value: 800
       }
@@ -41,30 +41,65 @@ describe("Generates the correct query strings and value arrays", function(){
 
 
   test("Works with valid activities query 2", function() {
-    // const query_arr = [
-    //   {
-    //     column_name: '',
-    //     comparison_operator: '',
-    //     comparison_value: ''
-    //   }
-    // ]
-    // const query = dynamicSearchQuery(query_arr, 'activities', user_id);
-    // expect(query[0]).toBe("");
-    // expect(query[1]).toEqual([]);
+    const query_arr = [
+    ]
+    const query = dynamicSearchQuery(query_arr, 'activities', user_id);
+    expect(query[0]).toBe("SELECT * FROM activities JOIN days ON activities.day_id = days.id WHERE user_id = $1;");
+    expect(query[1]).toEqual([user_id]);
   })
 
 
   test("Works with valid activities query 3", function() {
-    // const query_arr = [
-    //   {
-    //     column_name: '',
-    //     comparison_operator: '',
-    //     comparison_value: ''
-    //   }
-    // ]
-    // const query = dynamicSearchQuery(query_arr, 'activities', user_id);
-    // expect(query[0]).toBe("");
-    // expect(query[1]).toEqual([]);
+    const query_arr = [
+			{
+				column_name: 'id',
+				comparison_operator: '>',
+				comparison_value: 10
+    	},
+			{
+				column_name: 'day_id',
+				comparison_operator: '=',
+				comparison_value: 123
+    	},
+			{
+				column_name: 'category',
+				comparison_operator: 'ILIKE',
+				comparison_value: 'run'
+    	},
+			{
+				column_name: 'start_time',
+				comparison_operator: '>=',
+				comparison_value: new Date(10-31-2020)
+    	},
+			{
+				column_name: 'end_time',
+				comparison_operator: '<=',
+				comparison_value: new Date(11-6-2020)
+    	},
+			{
+				column_name: 'intensity',
+				comparison_operator: '>',
+				comparison_value: 3
+    	},
+			{
+				column_name: 'intensity',
+				comparison_operator: 'ILIKE',  // THIS SHOULD FILTER OUT
+				comparison_value: ''
+    	},
+			{
+				column_name: 'success_rating',
+				comparison_operator: '>',
+				comparison_value: 5
+    	},
+			{
+				column_name: 'success_rating',
+				comparison_operator: '<=',
+				comparison_value: 10
+    	}
+    ]
+    const query = dynamicSearchQuery(query_arr, 'activities', user_id);
+    expect(query[0]).toBe("SELECT * FROM activities JOIN days ON activities.day_id = days.id WHERE user_id = $1 AND id > $2 AND day_id = $3 AND category ILIKE $4 AND start_time >= $5 AND end_time <= $6 AND intensity > $7 AND success_rating > $8 AND success_rating <= $9;");
+    expect(query[1]).toEqual([user_id, 10, 123, 'run', new Date(10-31-2020), new Date(11-6-2020), 3, 5, 10]);
   })
 
 

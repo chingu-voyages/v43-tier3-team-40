@@ -23,7 +23,7 @@ const filterActivityQuery = (query_arr) => {
     // comparable as text
     else if (['category'].includes(el.column_name)) {
       if (['ILIKE', 'IS NULL', 'IS NOT NULL'].includes(el.comparison_operator)) {
-        if (el.comparison_value instanceof String) return true;
+        if (typeof el.comparison_value === "string") return true;
         else return false;
       } else return false;
     } 
@@ -51,7 +51,7 @@ const filterMealQuery = (query_arr) => {
     // comparable as text
     else if (['dietary_restrictions'].includes(el.column_name)) {
       if (['ILIKE', 'IS NULL', 'IS NOT NULL'].includes(el.comparison_operator)) {
-        if (el.comparison_value instanceof String) return true;
+        if (typeof el.comparison_value === "string") return true;
         else return false;
       } else return false;
     } 
