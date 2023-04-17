@@ -1,5 +1,6 @@
 const {InvalidUserError, BadRequestError, NotFoundError, UnauthorizedError, BadDateError} = require('../expressError');
 const dynamicSearchQuery = require('../helpers/dynamicSearchQuery');
+const dynamicUpdateQuery = require('../helpers/dynamicUpdateQuery');
 const db = require('../db');
 const Day = require('./Day');
 
@@ -81,3 +82,40 @@ const addSleep = async (sleep_obj, user_id) => {
   }
 }
 module.exports.addSleep = addSleep;
+
+
+
+const editSleep = async (sleep_obj, sleep_id, user_id) => {
+
+  try {
+
+    // make sure that this sleep belongs to this user
+    const foundSleep = await getSleep(sleep_id);
+    if (!foundSleep) throw new NotFoundError();
+    if (foundSleep.user_id !== user_id) throw new InvalidUserError();
+
+    // filter sleep_obj to get only appropriate keys
+    // sleep_obj = {
+    //   day_id: sleep_obj.day_id ? sleep_obj.day_id : null,
+    //   start_time: sleep_obj.start_time ? sleep_obj.start_time : null,
+    //   end_time: sleep_obj.end_time ? sleep_obj.end_time : null,
+    //   success_rating: sleep_obj.success_rating ? sleep_obj.success_rating : null
+    // }
+
+    sleep_obj.day_id = sleep_obj.day_id || null;
+    sleep_obj.start_time = sleep_obj.start_time || null;
+    sleep_obj.end_time = sleep_obj.end_time || null;
+    sleep_obj.success_rating = sleep_obj.success_rating || null;
+
+    const queryArr = dynamicUpdateQuery(sleep_obj, 'sleeps', 'id', sleep_id);
+
+    const sleep = (await db.query(...queryArr)).rows[0];
+
+    return sleep;
+    
+
+  } catch(err) {
+    throw err;
+  }
+}
+module.exports.editSleep = editSleep;
