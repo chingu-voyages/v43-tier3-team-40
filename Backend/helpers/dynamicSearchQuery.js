@@ -128,7 +128,7 @@ const dynamicSearchQuery = (query_arr, table_name, user_id) => {
 
   query_arr.forEach((obj, i)  => {
     let new_where = ''
-    new_where += `${obj.column_name} `
+    new_where += `${table_name}.${obj.column_name} `
     new_where += `${obj.comparison_operator} `
     
     new_where += `$${[i+2]}` // array is 1-indexed, also user_id goes first
@@ -143,6 +143,13 @@ const dynamicSearchQuery = (query_arr, table_name, user_id) => {
 
   query_str += stringified_wheres;
   query_str += ';';
+
+  // 'id' is ambiguous, this will add back the correct table name
+  // while (query_str.indexOf(' id') >= 0) {
+  //   let split_index = query_str.indexOf('id') + 1;
+  //   query_str = query_str.slice(0, split_index) + `${table_name}.` + query_str.slice(split_index);
+  // }
+
   return [query_str, value_arr];
 }
 module.exports = dynamicSearchQuery;

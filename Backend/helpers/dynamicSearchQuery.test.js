@@ -28,7 +28,7 @@ describe("Generates the correct query strings and value arrays", function(){
       }
     ]
     const query = dynamicSearchQuery(query_arr, 'activities', user_id);
-    expect(query[0]).toBe("SELECT * FROM activities JOIN days ON activities.day_id = days.id WHERE user_id = $1 AND day_id = $2 AND start_time >= $3;");
+    expect(query[0]).toBe("SELECT * FROM activities JOIN days ON activities.day_id = days.id WHERE user_id = $1 AND activities.day_id = $2 AND activities.start_time >= $3;");
     expect(query[1]).toEqual(['user-id', 24618, new Date("2020-11-01T00:00:00.000Z")]);
   })
 
@@ -91,7 +91,7 @@ describe("Generates the correct query strings and value arrays", function(){
     	}
     ]
     const query = dynamicSearchQuery(query_arr, 'activities', user_id);
-    expect(query[0]).toBe("SELECT * FROM activities JOIN days ON activities.day_id = days.id WHERE user_id = $1 AND id > $2 AND day_id = $3 AND category ILIKE $4 AND start_time >= $5 AND end_time <= $6 AND intensity > $7 AND success_rating > $8 AND success_rating <= $9;");
+    expect(query[0]).toBe("SELECT * FROM activities JOIN days ON activities.day_id = days.id WHERE user_id = $1 AND activities.id > $2 AND activities.day_id = $3 AND activities.category ILIKE $4 AND activities.start_time >= $5 AND activities.end_time <= $6 AND activities.intensity > $7 AND activities.success_rating > $8 AND activities.success_rating <= $9;");
     expect(query[1]).toEqual([user_id, 10, 123, 'run', new Date(10-31-2020), new Date(11-6-2020), 3, 5, 10]);
   })
 
@@ -124,7 +124,7 @@ describe("Generates the correct query strings and value arrays", function(){
       }
     ]
     const query = dynamicSearchQuery(query_arr, 'meals', user_id);
-    expect(query[0]).toBe("SELECT * FROM meals JOIN days ON meals.day_id = days.id WHERE user_id = $1 AND id = $2 AND calories >= $3 AND carbs > $4;");
+    expect(query[0]).toBe("SELECT * FROM meals JOIN days ON meals.day_id = days.id WHERE user_id = $1 AND meals.id = $2 AND meals.calories >= $3 AND meals.carbs > $4;");
     expect(query[1]).toEqual([user_id, 15, 100, 20]);
   })
 
@@ -178,7 +178,7 @@ describe("Generates the correct query strings and value arrays", function(){
       }
     ]
     const query = dynamicSearchQuery(query_arr, 'meals', user_id);
-    expect(query[0]).toBe("SELECT * FROM meals JOIN days ON meals.day_id = days.id WHERE user_id = $1 AND id = $2 AND day_id < $3 AND calories > $4 AND carbs = $5 AND protein < $6 AND fat > $7 AND dietary_restrictions IS NULL $8 AND time > $9;");
+    expect(query[0]).toBe("SELECT * FROM meals JOIN days ON meals.day_id = days.id WHERE user_id = $1 AND meals.id = $2 AND meals.day_id < $3 AND meals.calories > $4 AND meals.carbs = $5 AND meals.protein < $6 AND meals.fat > $7 AND meals.dietary_restrictions IS NULL $8 AND meals.time > $9;");
     expect(query[1]).toEqual([user_id, 30, 500, 750, 30, 15, 20, '', new Date('10-31-2020 8:00 PM')]);
   })
 
@@ -206,7 +206,7 @@ describe("Generates the correct query strings and value arrays", function(){
       }
     ]
     const query = dynamicSearchQuery(query_arr, 'sleeps', user_id);
-    expect(query[0]).toBe("SELECT * FROM sleeps JOIN days ON sleeps.day_id = days.id WHERE user_id = $1 AND start_time > $2 AND end_time < $3;");
+    expect(query[0]).toBe("SELECT * FROM sleeps JOIN days ON sleeps.day_id = days.id WHERE user_id = $1 AND sleeps.start_time > $2 AND sleeps.end_time < $3;");
     expect(query[1]).toEqual([user_id, new Date('10-31-2020 8:00 PM'), new Date('11-1-2020 12:00 PM')]);
   })
 
@@ -241,7 +241,7 @@ describe("Generates the correct query strings and value arrays", function(){
 
     ]
     const query = dynamicSearchQuery(query_arr, 'sleeps', user_id);
-    expect(query[0]).toBe("SELECT * FROM sleeps JOIN days ON sleeps.day_id = days.id WHERE user_id = $1 AND day_id = $2 AND start_time > $3 AND success_rating = $4;");
+    expect(query[0]).toBe("SELECT * FROM sleeps JOIN days ON sleeps.day_id = days.id WHERE user_id = $1 AND sleeps.day_id = $2 AND sleeps.start_time > $3 AND sleeps.success_rating = $4;");
     expect(query[1]).toEqual([user_id, 30, new Date("01-01-1980"), 10]);
   })
 
