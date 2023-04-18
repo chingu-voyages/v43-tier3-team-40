@@ -19,7 +19,7 @@ dotenv.config({
 const configObj = {
   SECRET_KEY: undefined,
   BCRYPT_WORK_FACTOR: undefined,
-  DATABASE_URI: "production"
+  DATABASE_URI: undefined
 }
 
 // default secret key
@@ -28,7 +28,7 @@ configObj.SECRET_KEY = process.env.SECRET_KEY || "default-secret-key";
 // correctly set BCRYPT_WORK_FACTOR & DATABASE_URI for export, defaulting to test mode
 if (process.env.MODE === "production") {
   configObj.BCRYPT_WORK_FACTOR = 12;
-  configObj.DATABASE_URI = "bodybalance"
+  process.env.DATABASE_URL = "bodybalance"
 } else {
   configObj.BCRYPT_WORK_FACTOR = 1;
   configObj.DATABASE_URI = "bodybalance_test"
