@@ -93,9 +93,10 @@ const editSleep = async (sleep_obj, sleep_id, user_id) => {
   try {
 
     // make sure that this sleep belongs to this user
-    const foundSleep = await getSleep(sleep_id);
+    const foundSleep = await getSleep(sleep_id, user_id);
     if (!foundSleep) throw new NotFoundError();
-    if (foundSleep.user_id !== user_id) throw new InvalidUserError();
+
+    console.log(foundSleep);
 
     // filter sleep_obj to get only appropriate keys
     // sleep_obj = {

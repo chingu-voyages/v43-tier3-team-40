@@ -14,6 +14,33 @@ let fs_start_time = new Date("2023-04-01 20:00");
 let fs_end_time = new Date("2023-04-02 06:00");
 let fs_success_rating = 7;
 
+// easier way of checking when going through high volume
+function checkSleep(sleep, id, day_id, start_time, end_time, success_rating, user_id) {
+  if (id === undefined) {
+    expect(sleep).toHaveProperty('id');
+  } else expect(sleep).toHaveProperty('id', id);
+
+  if (day_id === undefined) {
+    expect(sleep).toHaveProperty('day_id');
+  } else expect(sleep).toHaveProperty('day_id', day_id);
+
+  if (start_time === undefined) {
+    expect(sleep).toHaveProperty('start_time');
+  } else expect(sleep).toHaveProperty('start_time', start_time);
+
+  if (end_time === undefined) {
+    expect(sleep).toHaveProperty('end_time');
+  } else expect(sleep).toHaveProperty('end_time', end_time);
+
+  if (success_rating === undefined) {
+    expect(sleep).toHaveProperty('success_rating');
+  } else expect(sleep).toHaveProperty('success_rating', success_rating);
+
+  if (user_id === undefined) {
+    expect(sleep).toHaveProperty('user_id');
+  } else expect(sleep).toHaveProperty('user_id', user_id);
+}
+
 beforeAll(async () => {
   await db.query(`DELETE FROM users WHERE username LIKE 'testUser%';`);
   testUser1 = await User.createUser('testUser1', 'testUser1@email.com', 'password123');
@@ -158,35 +185,7 @@ describe("Successfully deletes Sleep with deleteSleep", function() {
 
 
 
-
-
 describe("Successfully retrieves multiple sleeps according to search paramters with getSleeps", function() {
-
-  function checkSleep(sleep, id, day_id, start_time, end_time, success_rating, user_id) {
-    if (id === undefined) {
-      expect(sleep).toHaveProperty('id');
-    } else expect(sleep).toHaveProperty('id', id);
-
-    if (day_id === undefined) {
-      expect(sleep).toHaveProperty('day_id');
-    } else expect(sleep).toHaveProperty('day_id', day_id);
-
-    if (start_time === undefined) {
-      expect(sleep).toHaveProperty('start_time');
-    } else expect(sleep).toHaveProperty('start_time', start_time);
-
-    if (end_time === undefined) {
-      expect(sleep).toHaveProperty('end_time');
-    } else expect(sleep).toHaveProperty('end_time', end_time);
-
-    if (success_rating === undefined) {
-      expect(sleep).toHaveProperty('success_rating');
-    } else expect(sleep).toHaveProperty('success_rating', success_rating);
-
-    if (user_id === undefined) {
-      expect(sleep).toHaveProperty('user_id');
-    } else expect(sleep).toHaveProperty('user_id', user_id);
-  }
 
   // delete users and rebuild documents
   beforeAll(async () => {
@@ -313,7 +312,61 @@ describe("Successfully retrieves multiple sleeps according to search paramters w
 
 
 
-describe("Successfully edits sleep with editSleep", function() {});
+describe("Successfully edits sleep with editSleep", function() {
+  
+  let testUser4;
+  let testSleep;
+  let day;
+
+  beforeAll(async () => {
+    testUser4 = await User.createUser('testUser4', 'testUser4@email.com', 'password123');
+    testSleep = await Sleep.addSleep({
+      start_time: new Date("2023-3-5 20:30"), 
+      end_time: new Date("2023-3-6 5:30"), 
+      success_rating: 7
+    }, testUser4.id)
+    day = await Day.addDay('4-18-2023', testUser4.id);
+  })
+
+
+  test("Successfully edits date", async () => {
+    const editedSleep = await Sleep.editSleep({
+      day_id: day.id,
+      start_time: new Date("2023-4-18 20:00"),
+      end_time: new Date("2023-4-19 6:00"),
+      success_rating: 10
+    }, testSleep.id, testUser4.id);
+
+    expect(editedSleep).toHaveProperty('id', testSleep.id);
+    expect(editedSleep).toHaveProperty('day_id', day.id);
+    expect(editedSleep).toHaveProperty('start_time', new Date("4-18-2023 20:00"));
+    expect(editedSleep).toHaveProperty('end_time', new Date("2023-4-19 6:00"));
+    expect(editedSleep).toHaveProperty('success_rating', 10);
+
+  })
+
+  test("Throws NotFoundError on nonexistent sleep", async () => {
+    const badPromise = Sleep.editSleep({
+      day_id: day.id,
+      start_time: new Date("2023-4-18 20:00"),
+      end_time: new Date("2023-4-19 6:00"),
+      success_rating: 10
+    }, 99999999, testUser4.id);
+    await expect(badPromise).rejects.toThrow(NotFoundError)
+  })
+
+
+  test("Throws NotFoundError on sleep belonging to someone else", async () => {
+    const badPromise = Sleep.editSleep({
+      day_id: day.id,
+      start_time: new Date("2023-4-18 20:00"),
+      end_time: new Date("2023-4-19 6:00"),
+      success_rating: 10
+    }, testSleep.id, testUser3.id);
+    await expect(badPromise).rejects.toThrow(NotFoundError)
+  })
+
+});
 
 
 
