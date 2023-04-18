@@ -203,26 +203,46 @@ describe("Successfully retrieves multiple sleeps according to search paramters w
       {start_time: new Date("2023-3-3 21:00"), end_time: new Date("2023-3-4 7:00"), success_rating: 3}
     ]
 
-    await Sleep.addSleep(testUser1Sleeps[0], testUser1.id);
-    await Sleep.addSleep(testUser1Sleeps[1], testUser1.id);
-    await Sleep.addSleep(testUser1Sleeps[2], testUser1.id);
-    await Sleep.addSleep(testUser1Sleeps[3], testUser1.id);
-    await Sleep.addSleep(testUser1Sleeps[4], testUser1.id);
+    testUser2Sleeps = [
+      {start_time: new Date("2023-3-1 23:00"), end_time: new Date("2023-3-2 9:00"), success_rating: 8},
+      {start_time: new Date("2023-3-2 23:00"), end_time: new Date("2023-3-3 9:00"), success_rating: 2},
+      {start_time: new Date("2023-3-3 23:00"), end_time: new Date("2023-3-4 9:00"), success_rating: 4},
+      {start_time: new Date("2023-3-4 23:00"), end_time: new Date("2023-3-5 9:00"), success_rating: 10},
+      {start_time: new Date("2023-3-5 23:00"), end_time: new Date("2023-3-6 9:00"), success_rating: 6}
+    ]
 
-    await Sleep.addSleep({start_time: new Date("2023-3-1 23:00"), end_time: new Date("2023-3-2 9:00"), success_rating: 5}, testUser2.id);
-    await Sleep.addSleep({start_time: new Date("2023-3-2 23:00"), end_time: new Date("2023-3-3 9:00"), success_rating: 5}, testUser2.id);
-    await Sleep.addSleep({start_time: new Date("2023-3-3 23:00"), end_time: new Date("2023-3-4 9:00"), success_rating: 5}, testUser2.id);
-    await Sleep.addSleep({start_time: new Date("2023-3-4 23:00"), end_time: new Date("2023-3-5 9:00"), success_rating: 5}, testUser2.id);
-    await Sleep.addSleep({start_time: new Date("2023-3-5 23:00"), end_time: new Date("2023-3-6 9:00"), success_rating: 5}, testUser2.id);
+    testUser3Sleeps = [
+      {start_time: new Date("2023-3-3 20:30"), end_time: new Date("2023-3-4 5:30"), success_rating: 6},
+      {start_time: new Date("2023-3-4 20:30"), end_time: new Date("2023-3-5 5:30"), success_rating: 6},
+      {start_time: new Date("2023-3-5 20:30"), end_time: new Date("2023-3-6 5:30"), success_rating: 7},
+      {start_time: new Date("2023-3-6 20:30"), end_time: new Date("2023-3-7 5:30"), success_rating: 3},
+      {start_time: new Date("2023-3-7 15:00"), end_time: new Date("2023-3-7 15:30"), success_rating: 2}, // nap
+      {start_time: new Date("2023-3-7 20:30"), end_time: new Date("2023-3-8 5:30"), success_rating: 9}
+    ]
 
-    await Sleep.addSleep({start_time: new Date("2023-3-3 20:30"), end_time: new Date("2023-3-4 5:30"), success_rating: 5}, testUser3.id);
-    await Sleep.addSleep({start_time: new Date("2023-3-4 20:30"), end_time: new Date("2023-3-5 5:30"), success_rating: 5}, testUser3.id);
-    await Sleep.addSleep({start_time: new Date("2023-3-5 20:30"), end_time: new Date("2023-3-6 5:30"), success_rating: 5}, testUser3.id);
-    await Sleep.addSleep({start_time: new Date("2023-3-6 20:30"), end_time: new Date("2023-3-7 5:30"), success_rating: 5}, testUser3.id);
-    await Sleep.addSleep({start_time: new Date("2023-3-7 15:00"), end_time: new Date("2023-3-8 15:30"), success_rating: 5}, testUser3.id);
-    await Sleep.addSleep({start_time: new Date("2023-3-7 20:30"), end_time: new Date("2023-3-8 5:30"), success_rating: 5}, testUser3.id);
+    await Promise.all([
+      Sleep.addSleep(testUser1Sleeps[0], testUser1.id),
+      Sleep.addSleep(testUser1Sleeps[1], testUser1.id),
+      Sleep.addSleep(testUser1Sleeps[2], testUser1.id),
+      Sleep.addSleep(testUser1Sleeps[3], testUser1.id),
+      Sleep.addSleep(testUser1Sleeps[4], testUser1.id),
 
+      Sleep.addSleep(testUser2Sleeps[0], testUser2.id),
+      Sleep.addSleep(testUser2Sleeps[1], testUser2.id),
+      Sleep.addSleep(testUser2Sleeps[2], testUser2.id),
+      Sleep.addSleep(testUser2Sleeps[3], testUser2.id),
+      Sleep.addSleep(testUser2Sleeps[4], testUser2.id),
 
+      Sleep.addSleep(testUser3Sleeps[0], testUser3.id),
+      Sleep.addSleep(testUser3Sleeps[1], testUser3.id),
+      Sleep.addSleep(testUser3Sleeps[2], testUser3.id),
+      Sleep.addSleep(testUser3Sleeps[3], testUser3.id),
+      
+    ]);
+
+    // same day, need to do one after the other the second to find the day
+    await Sleep.addSleep(testUser3Sleeps[4], testUser3.id);
+    await Sleep.addSleep(testUser3Sleeps[5], testUser3.id);
 
   })
 
@@ -230,46 +250,63 @@ describe("Successfully retrieves multiple sleeps according to search paramters w
   test("Gets all sleeps for testUser1", async () => {
     const sleeps = await Sleep.getSleeps([], testUser1.id);
     expect(sleeps.length).toBe(5);
-    checkSleep(sleeps[0], undefined, undefined, testUser1Sleeps[0].start_time, testUser1Sleeps[0].end_time, testUser1Sleeps[0].success_rating, testUser1.id);
-    checkSleep(sleeps[1], undefined, undefined, testUser1Sleeps[1].start_time, testUser1Sleeps[1].end_time, testUser1Sleeps[1].success_rating, testUser1.id);
-    checkSleep(sleeps[2], undefined, undefined, testUser1Sleeps[2].start_time, testUser1Sleeps[2].end_time, testUser1Sleeps[2].success_rating, testUser1.id);
-    checkSleep(sleeps[3], undefined, undefined, testUser1Sleeps[3].start_time, testUser1Sleeps[3].end_time, testUser1Sleeps[3].success_rating, testUser1.id);
-    checkSleep(sleeps[4], undefined, undefined, testUser1Sleeps[4].start_time, testUser1Sleeps[4].end_time, testUser1Sleeps[4].success_rating, testUser1.id);
+    const tu1s = testUser1Sleeps;
+    checkSleep(sleeps[0], undefined, undefined, tu1s[0].start_time, tu1s[0].end_time, tu1s[0].success_rating, testUser1.id);
+    checkSleep(sleeps[1], undefined, undefined, tu1s[1].start_time, tu1s[1].end_time, tu1s[1].success_rating, testUser1.id);
+    checkSleep(sleeps[2], undefined, undefined, tu1s[2].start_time, tu1s[2].end_time, tu1s[2].success_rating, testUser1.id);
+    checkSleep(sleeps[3], undefined, undefined, tu1s[3].start_time, tu1s[3].end_time, tu1s[3].success_rating, testUser1.id);
+    checkSleep(sleeps[4], undefined, undefined, tu1s[4].start_time, tu1s[4].end_time, tu1s[4].success_rating, testUser1.id);
     
-    // expect(sleeps[0]).toHaveProperty('id')
-    // expect(sleeps[0]).toHaveProperty('day_id')
-    // expect(sleeps[0]).toHaveProperty('start_time', new Date("2023-2-27 21:00"))
-    // expect(sleeps[0]).toHaveProperty('end_time', new Date("2023-2-28 7:00"))
-    // expect(sleeps[0]).toHaveProperty('success_rating', 5)
-    // expect(sleeps[0]).toHaveProperty('user_id', testUser1.id)
-    // expect(sleeps[1]).toHaveProperty('id')
-    // expect(sleeps[1]).toHaveProperty('day_id')
-    // expect(sleeps[1]).toHaveProperty('start_time')
-    // expect(sleeps[1]).toHaveProperty('end_time')
-    // expect(sleeps[1]).toHaveProperty('success_rating', 5)
-    // expect(sleeps[1]).toHaveProperty('user_id', testUser1.id)
-    // expect(sleeps[2]).toHaveProperty('id')
-    // expect(sleeps[2]).toHaveProperty('day_id')
-    // expect(sleeps[2]).toHaveProperty('start_time')
-    // expect(sleeps[2]).toHaveProperty('end_time')
-    // expect(sleeps[2]).toHaveProperty('success_rating', 7)
-    // expect(sleeps[2]).toHaveProperty('user_id', testUser1.id)
-    // expect(sleeps[3]).toHaveProperty('id')
-    // expect(sleeps[3]).toHaveProperty('day_id')
-    // expect(sleeps[3]).toHaveProperty('start_time')
-    // expect(sleeps[3]).toHaveProperty('end_time')
-    // expect(sleeps[3]).toHaveProperty('success_rating', 8)
-    // expect(sleeps[3]).toHaveProperty('user_id', testUser1.id)
-    // expect(sleeps[4]).toHaveProperty('id')
-    // expect(sleeps[4]).toHaveProperty('day_id')
-    // expect(sleeps[4]).toHaveProperty('start_time')
-    // expect(sleeps[4]).toHaveProperty('end_time')
-    // expect(sleeps[4]).toHaveProperty('success_rating', 3)
-    // expect(sleeps[4]).toHaveProperty('user_id', testUser1.id)
   })
 
-  test("", async () => {
+  test("Gets all sleeps for testUser2", async () => {
+    const sleeps = await Sleep.getSleeps([], testUser2.id);
+    const tus = testUser2Sleeps;
+    checkSleep(sleeps[0], undefined, undefined, tus[0].start_time, tus[0].end_time, tus[0].success_rating, testUser2.id);
+    checkSleep(sleeps[1], undefined, undefined, tus[1].start_time, tus[1].end_time, tus[1].success_rating, testUser2.id);
+    checkSleep(sleeps[2], undefined, undefined, tus[2].start_time, tus[2].end_time, tus[2].success_rating, testUser2.id);
+    checkSleep(sleeps[3], undefined, undefined, tus[3].start_time, tus[3].end_time, tus[3].success_rating, testUser2.id);
+    checkSleep(sleeps[4], undefined, undefined, tus[4].start_time, tus[4].end_time, tus[4].success_rating, testUser2.id);
+  })
 
+  test("Gets all sleeps for testUser3", async () => {
+    const sleeps = await Sleep.getSleeps([], testUser3.id);
+    const tus = testUser3Sleeps;
+    checkSleep(sleeps[0], undefined, undefined, tus[0].start_time, tus[0].end_time, tus[0].success_rating, testUser3.id);
+    checkSleep(sleeps[1], undefined, undefined, tus[1].start_time, tus[1].end_time, tus[1].success_rating, testUser3.id);
+    checkSleep(sleeps[2], undefined, undefined, tus[2].start_time, tus[2].end_time, tus[2].success_rating, testUser3.id);
+    checkSleep(sleeps[3], undefined, undefined, tus[3].start_time, tus[3].end_time, tus[3].success_rating, testUser3.id);
+    checkSleep(sleeps[4], undefined, undefined, tus[4].start_time, tus[4].end_time, tus[4].success_rating, testUser3.id);
+  })
+
+  test("Gets all sleeps after 3/1/23 for testUser1 with success_rating greater than 5", async () => {
+    const sleeps = await Sleep.getSleeps([{
+      column_name: 'start_time',
+      comparison_operator: '>',
+      comparison_value: new Date('3-1-23')
+    },{
+      column_name: 'success_rating',
+      comparison_operator: '>',
+      comparison_value: 5
+    }], testUser1.id);
+    let tus = testUser1Sleeps;
+    expect(sleeps.length).toBe(2);
+    checkSleep(sleeps[0], undefined, undefined, tus[2].start_time, tus[2].end_time, tus[2].success_rating, testUser1.id);
+    checkSleep(sleeps[1], undefined, undefined, tus[3].start_time, tus[3].end_time, tus[3].success_rating, testUser1.id);
+  })
+
+  test("Two sleeps on same day for testUser3 have same date_id", async () => {
+    const sleeps = await Sleep.getSleeps([{
+      column_name: 'start_time',
+      comparison_operator: '>',
+      comparison_value: new Date('3-7-23')
+    },{
+      column_name: 'end_time',
+      comparison_operator: '<',
+      comparison_value: new Date('3-8-23 12:00')
+    }], testUser3.id);
+    expect(sleeps.length).toBe(2);
+    expect(sleeps[0].day_id).toBe(sleeps[1].day_id);
   })
 
 });
