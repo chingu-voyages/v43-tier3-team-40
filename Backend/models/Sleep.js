@@ -12,9 +12,9 @@ const Day = require('./Day');
  * @param {Number} sleep_id 
  * @returns {sleep}
  */
-const getSleep = async (sleep_id) => {
+const getSleep = async (sleep_id, user_id) => {
   try {
-    const sleepQuery = await db.query(`
+    const sleep = (await db.query(`
       SELECT 
         sleeps.id AS id,
         day_id,
@@ -24,11 +24,12 @@ const getSleep = async (sleep_id) => {
         days.user_id AS user_id
       FROM sleeps 
       LEFT JOIN days ON sleeps.day_id=days.id 
-      WHERE sleeps.id=$1`, [sleep_id])
-    if (sleepQuery.rows.length === 0) { 
-      throw new NotFoundError()
-    } 
-    else return sleepQuery.rows[0];
+      WHERE sleeps.id = $1 AND days.user_id = $2;`
+      , [sleep_id, user_id])).rows[0]
+    
+    
+    if (!sleep) throw new NotFoundError();
+    else return sleep;
   } catch(err) {
     throw err;
   }
