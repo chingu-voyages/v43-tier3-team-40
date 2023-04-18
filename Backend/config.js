@@ -19,7 +19,7 @@ dotenv.config({
 const configObj = {
   SECRET_KEY: undefined,
   BCRYPT_WORK_FACTOR: undefined,
-  DATABASE_URI: undefined
+  DATABASE_URI: "production"
 }
 
 // default secret key
