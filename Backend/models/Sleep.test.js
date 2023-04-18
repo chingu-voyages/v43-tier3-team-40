@@ -3,7 +3,7 @@ const db = require('../db');
 const User = require('./User');
 const Day = require('./Day');
 const Sleep = require('./Sleep');
-const { UnauthorizedError, NotFoundError } = require('../expressError');
+const { UnauthorizedError, NotFoundError, BadDateError } = require('../expressError');
 
 
 let testUser1;
@@ -65,6 +65,67 @@ describe("Successfully retrieves Sleep with getSleep", function() {
 
 
 describe("Successfully adds Sleep with addSleep", function() {
+
+  test("testUser1 can add a sleep to a given day", async () => {
+    day = await Day.addDay(new Date("2023-04-02T08:00:00.000Z"), testUser1.id);
+    const sleep = await Sleep.addSleep({
+      day_id: day.id,
+      success_rating: 6
+    }, testUser1.id);
+    expect(sleep).toHaveProperty('id');
+    expect(sleep).toHaveProperty('day_id', day.id);
+    expect(sleep).toHaveProperty('start_time', null);
+    expect(sleep).toHaveProperty('end_time', null);
+    expect(sleep).toHaveProperty('success_rating', 6);
+  });
+
+  test("testUser2 can add a sleep to a given day", async () => {
+    day = await Day.addDay(new Date("2023-04-02T08:00:00.000Z"), testUser2.id);
+    const sleep = await Sleep.addSleep({
+      day_id: day.id,
+      start_time: new Date("2023-04-02T22:00:00.000Z"),
+      end_time: new Date("2023-04-03T06:00:00.000Z"),
+      success_rating: 6
+    }, testUser2.id);
+    expect(sleep).toHaveProperty('id');
+    expect(sleep).toHaveProperty('day_id', day.id);
+    expect(sleep).toHaveProperty('start_time', new Date("2023-04-02T22:00:00.000Z"));
+    expect(sleep).toHaveProperty('end_time', new Date("2023-04-03T06:00:00.000Z"));
+    expect(sleep).toHaveProperty('success_rating', 6);
+  })
+
+  test("throws UnauthorizedError when sleep added to day not belonging to user", async () => {
+    await (expect(Sleep.addSleep({
+      day_id: 9999999,
+      success_rating: 6
+    }, testUser1.id))).rejects.toThrow(UnauthorizedError);
+  })
+
+
+  test("Successfully creates day from start_time", async () => {
+    const sleep = await Sleep.addSleep({
+      start_time: new Date("2023-04-03T23:00:00.000Z")
+    }, testUser3.id);
+
+    const day = await Day.getDay(new Date("2023-04-03T23:00:00.000Z"), testUser3.id);
+
+    expect(day).toHaveProperty('user_id', testUser3.id)
+    expect(day).toHaveProperty('date', new Date('4-3-2023'))
+
+    expect(sleep).toHaveProperty('id');
+    expect(sleep).toHaveProperty('day_id', day.id);
+    expect(sleep).toHaveProperty('start_time', new Date("2023-04-03T23:00:00.000Z"));
+    expect(sleep).toHaveProperty('end_time', null);
+    expect(sleep).toHaveProperty('success_rating', null);
+  })
+
+
+  test("Throws BadDateError when no day_id or start_time", async () => {
+    await (expect(Sleep.addSleep({
+      end_time: new Date("2023-04-03T23:00:00.000Z"),
+      success_rating: 10
+    }, testUser3.id))).rejects.toThrow(BadDateError);
+  })
 
 });
 

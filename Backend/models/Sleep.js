@@ -74,10 +74,12 @@ const addSleep = async (sleep_obj, user_id) => {
 
     const {day_id, start_time, end_time, success_rating} = sleep_obj;
     
-    db.query(`INSERT INTO sleeps 
+    const sleep = (await db.query(`INSERT INTO sleeps 
       (day_id, start_time, end_time, success_rating) 
-      VALUES ($1, $2, $3, $4);`
-      , [day_id, start_time, end_time, success_rating])
+      VALUES ($1, $2, $3, $4) RETURNING *;`
+      , [day_id, start_time, end_time, success_rating])).rows[0];
+    return sleep;
+
   } catch(err) {
     throw err;
   }
