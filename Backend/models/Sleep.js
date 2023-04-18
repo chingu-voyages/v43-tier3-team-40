@@ -1,4 +1,4 @@
-const {InvalidUserError, BadRequestError, NotFoundError, UnauthorizedError, BadDateError} = require('../expressError');
+const {NotFoundError, UnauthorizedError, BadDateError} = require('../expressError');
 const dynamicSearchQuery = require('../helpers/dynamicSearchQuery');
 const dynamicUpdateQuery = require('../helpers/dynamicUpdateQuery');
 const db = require('../db');
@@ -37,7 +37,17 @@ const getSleep = async (sleep_id, user_id) => {
 module.exports.getSleep = getSleep;
 
 
-
+/**
+ * Takes an array of queries and a user id, converts
+ * them into an SQL query through dynamicSearchQuery
+ * and returns the results. The search query must be
+ * an array of objects with each object having three 
+ * keys: 'column_name', 'comparison_operator', and 
+ * 'comparison_value'
+ * @param {Array} query_arr 
+ * @param {UUID} user_id 
+ * @returns {sleeps}
+ */
 const getSleeps = async (query_arr, user_id) => {
   try {
     const query = dynamicSearchQuery(query_arr, 'sleeps', user_id);
@@ -50,15 +60,24 @@ const getSleeps = async (query_arr, user_id) => {
 module.exports.getSleeps = getSleeps;
 
 
-
-const addSleep = async (sleep_obj, user_id) => {
+/**
+ * Takes a sleep object, parses it to set the
+ * correct keys, checks if the correct day 
+ * document exists to add the sleep to, then adds
+ * the sleep to that day or to a new day that is 
+ * created, returning the sleep document
+ * @param {Object} sleep_obj_in
+ * @param {UUID} user_id 
+ * @returns {sleep}
+ */
+const addSleep = async (sleep_obj_in, user_id) => {
   try {
-
-    sleep_obj.day_id = sleep_obj.day_id || null;
-    sleep_obj.start_time = sleep_obj.start_time || null;
-    sleep_obj.end_time = sleep_obj.end_time || null;
-    sleep_obj.success_rating = sleep_obj.success_rating || null;
-
+    const sleep_obj = {
+      day_id : sleep_obj_in.day_id || null,
+      start_time : sleep_obj_in.start_time || null,
+      end_time : sleep_obj_in.end_time || null,
+      success_rating : sleep_obj_in.success_rating || null,
+    }
 
     // need to make sure day exists and belongs to user_id
     if (sleep_obj.day_id) {
@@ -87,8 +106,18 @@ const addSleep = async (sleep_obj, user_id) => {
 module.exports.addSleep = addSleep;
 
 
-
-const editSleep = async (sleep_obj, sleep_id, user_id) => {
+/**
+ * Takes an object of desired edits to make to a sleep,
+ * the id of the sleep to edit, and a user_id. First looks for
+ * the sleep to make sure that it exists and belongs to that user,
+ * then cleans the sleep object to get the correct keys, then
+ * makes the edits and returns the sleep.
+ * @param {Object} sleep_obj_in 
+ * @param {Number} sleep_id 
+ * @param {UUID} user_id 
+ * @returns {sleep}
+ */
+const editSleep = async (sleep_obj_in, sleep_id, user_id) => {
 
   try {
 
@@ -96,28 +125,19 @@ const editSleep = async (sleep_obj, sleep_id, user_id) => {
     const foundSleep = await getSleep(sleep_id, user_id);
     if (!foundSleep) throw new NotFoundError();
 
-    console.log(foundSleep);
-
     // filter sleep_obj to get only appropriate keys
-    // sleep_obj = {
-    //   day_id: sleep_obj.day_id ? sleep_obj.day_id : null,
-    //   start_time: sleep_obj.start_time ? sleep_obj.start_time : null,
-    //   end_time: sleep_obj.end_time ? sleep_obj.end_time : null,
-    //   success_rating: sleep_obj.success_rating ? sleep_obj.success_rating : null
-    // }
-
-    sleep_obj.day_id = sleep_obj.day_id || null;
-    sleep_obj.start_time = sleep_obj.start_time || null;
-    sleep_obj.end_time = sleep_obj.end_time || null;
-    sleep_obj.success_rating = sleep_obj.success_rating || null;
+    const sleep_obj = {
+      day_id : sleep_obj_in.day_id || null,
+      start_time : sleep_obj_in.start_time || null,
+      end_time : sleep_obj_in.end_time || null,
+      success_rating : sleep_obj_in.success_rating || null,
+    }
 
     const queryArr = dynamicUpdateQuery(sleep_obj, 'sleeps', 'id', sleep_id);
-
     const sleep = (await db.query(...queryArr)).rows[0];
 
     return sleep;
     
-
   } catch(err) {
     throw err;
   }
@@ -125,13 +145,19 @@ const editSleep = async (sleep_obj, sleep_id, user_id) => {
 module.exports.editSleep = editSleep;
 
 
-
+/**
+ * Takes a sleep_id and a user_id, checks for
+ * the sleep and to make sure it belongs to the
+ * user. If so, deletes and returns the sleep.
+ * @param {Number} sleep_id 
+ * @param {UUID} user_id 
+ * @returns 
+ */
 const deleteSleep = async (sleep_id, user_id) => {
   try {
     // make sure that this sleep belongs to this user
     const foundSleep = await getSleep(sleep_id, user_id);
     if (!foundSleep) throw new NotFoundError();
-
 
     const deleted_sleep = (await db.query(`DELETE FROM sleeps WHERE id = $1 RETURNING *;`, [sleep_id])).rows[0];
     return deleted_sleep;
