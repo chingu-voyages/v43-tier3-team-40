@@ -10,7 +10,11 @@ const router = new Router();
 // all routes are protected
 router.use(checkToken);
 
-
+/**
+ * GET getSleep/:sleep_id
+ * Calls Sleep.getSleep on req.params.sleep_id, returns
+ * the sleep document found
+ */
 router.get('/getSleep/:sleep_id', async (req, res, next) => {
   try {
     const sleep = await Sleep.getSleep(req.params.sleep_id, req.user.id);
@@ -27,7 +31,15 @@ router.get('/getSleep/:sleep_id', async (req, res, next) => {
   }
 })
 
-
+/**
+ * GET getSleeps?query
+ * Receives an array of objects as a query, with each
+ * object having the keys of "column_name", 
+ * "comparison_operator", and "comparison_value", then
+ * reassembles the array and passes it to Sleep.getSleeps,
+ * returning all sleep documents. An empty array/query
+ * string will return all sleeps belonging to a user
+ */
 router.get('/getSleeps', async (req, res, next) => {
   try {
 
@@ -52,38 +64,71 @@ router.get('/getSleeps', async (req, res, next) => {
   }
 })
 
+
 /**
-http://localhost:3000/sleeps/getSleeps?
-0[column_name]=id
-&0[comparison_operator]=%3E
-&0[comparison_value]=625
-&1[column_name]=id
-&1[comparison_operator]=%3C
-&1[comparison_value]=627
-
-http://localhost:3000/sleeps/getSleeps?0[column_name]=id&0[comparison_operator]=%3E&0[comparison_value]=625&1[column_name]=id&1[comparison_operator]=%3C&1[comparison_value]=627
-*/
-
+ * POST /addSleep
+ * Takes the request body and passes it to Sleep.addSleep,
+ * returning the newly created sleep document to the
+ * user.
+ */
 router.post('/addSleep', async (req, res, next) => {
   try {
-
+    const sleep = await Sleep.addSleep(req.body, req.user.id);
+    const token = jwt.sign(req.user, SECRET_KEY);
+    res.json({
+      sleep,
+      id: req.user.id,
+      username: req.user.username,
+      email: req.user.email,
+      token
+    })
   } catch (err) {
     return next(err)
   }
 })
 
+
+/**
+ * PUT /editSleep
+ * Takes edits from the request body and passes them
+ * as an object to Sleep.editSleep. Note that the
+ * request body MUST contain the id of the sleep
+ * document to be edit
+ */
 router.put('/editSleep', async (req, res, next) => {
   try {
-
+    const sleep = await Sleep.editSleep(req.body, req.body.id, req.user.id)
+    const token = jwt.sign(req.user, SECRET_KEY);
+    res.json({
+      sleep,
+      id: req.user.id,
+      username: req.user.username,
+      email: req.user.email,
+      token
+    })
   } catch (err) {
     return next(err)
   }
 })
 
 
-router.delete('/deleteSleep', async (req, res, next) => {
+/**
+ * DELETE /deleteSleep/:sleep_id
+ * Takes the sleep_id and passes it to Sleep.deleteSleep,
+ * returning the deleted sleep document to the user
+ */
+router.delete('/deleteSleep/:sleep_id', async (req, res, next) => {
   try {
-
+    const sleep = await Sleep.deleteSleep(req.params.sleep_id, req.user.id)
+    const token = jwt.sign(req.user, SECRET_KEY);
+    res.json({
+      sleep,
+      id: req.user.id,
+      username: req.user.username,
+      email: req.user.email,
+      token
+    })
+    
   } catch (err) {
     return next(err)
   }
