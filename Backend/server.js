@@ -3,6 +3,7 @@ const cors = require('cors');
 
 const usersRouter = require('./routes/users');
 const daysRouter = require('./routes/days');
+const sleepsRouter = require('./routes/sleeps');
 const { NotFoundError } = require('./expressError');
 
 // App
@@ -18,6 +19,7 @@ app.use(cors());
 // routes
 app.use('/users', usersRouter);
 app.use('/days', daysRouter);
+app.use('/sleeps', sleepsRouter);
 
 app.get('/', function (req, res) {
   res.send('Hello World!')
