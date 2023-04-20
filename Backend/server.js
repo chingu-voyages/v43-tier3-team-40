@@ -47,5 +47,13 @@ app.use((err, req, res, next) => {
 })
 
 
-const port = 3000
-app.listen(port, () => console.log(`App listening on port ${port}!`))
+// const port = 3000
+// app.listen(port, () => console.log(`App listening on port ${port}!`))
+
+// Use PORT provided in environment or default to 3000
+var port = process.env.PORT || 3000;
+
+// Listen on `port` and 0.0.0.0
+app.listen(port, '0.0.0.0', function () {
+  // ...
+});
