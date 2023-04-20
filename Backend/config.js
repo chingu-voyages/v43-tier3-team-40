@@ -26,7 +26,7 @@ const configObj = {
 configObj.SECRET_KEY = process.env.SECRET_KEY || "default-secret-key";
 
 // correctly set BCRYPT_WORK_FACTOR & DATABASE_URI for export, defaulting to test mode
-if (process.env.MODE === "production") {
+if (process.env.NODE_ENV === "production") {
   configObj.BCRYPT_WORK_FACTOR = 12;
   configObj.DATABASE_URI = process.env.DATABASE_URL
 } else {
