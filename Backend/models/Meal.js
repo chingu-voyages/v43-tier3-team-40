@@ -60,3 +60,56 @@ const getMeals = async (query_arr, user_id) => {
 	}
 }
 module.exports.getMeals = getMeals;
+
+
+/**
+ * Takes a meal object, parses it to set the
+ * corret keys, checks if the correct day
+ * document exists to add the meal to, then
+ * adds the meal to that day or to a new day
+ * that is created, returning the meal
+ * document.
+ * @param {Object} meal_obj_in 
+ * @param {UUID} user_id 
+ * @returns 
+ */
+const addMeal = async (meal_obj_in, user_id) => {
+	try {
+		const meal_obj = {
+			day_id: meal_obj_in.day_id,
+			calories: meal_obj_in.calories || null,
+			carbs: meal_obj_in.carbs || null,
+			fat: meal_obj_in.fat || null,
+			protein: meal_obj_in.protein || null,
+			dietary_restrictions: meal_obj_in.dietary_restrictions || null,
+			time: meal_obj_in.time || null
+		}
+
+		// need to make sure day exists and belongs to user_id
+		if (meal_obj.day_id) {
+			const day = (await db.query(`SELECT * FROM days WHERE id = $1;`,
+			[meal_obj.day_id])).rows[0];
+			if (day?.user_id !== user_id) throw new UnauthorizedError();
+			// else proceed
+		} else {
+			if (meal_obj.time) {
+				let day = await Day.addDay(meal_obj.time, user_id);
+				meal_obj.day_id = day.id;
+			} else throw new BadDateError();
+		}
+
+		const {day_id, calories, carbs, fat, protein, 
+			dietary_restrictions, time} = meal_obj;
+
+		const meal = (await db.query(`INSERT INTO meals
+			(day_id, calories, carbs, fat, protein, 
+			dietary_restrictions, time) RETURNING *;`
+			, [day_id, calories, carbs, fat, protein, 
+			dietary_restrictions, time])).rows[0];
+		return meal;
+
+	} catch(err) {
+		throw err;
+	}
+}
+module.exports.addMeal = addMeal;
