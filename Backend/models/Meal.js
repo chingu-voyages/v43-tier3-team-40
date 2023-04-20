@@ -113,3 +113,69 @@ const addMeal = async (meal_obj_in, user_id) => {
 	}
 }
 module.exports.addMeal = addMeal;
+
+
+/**
+ * Takes an object of desired edits to make to a meal,
+ * the id of the meal to edit, and a user_id. First
+ * looks for the meal to make sure that it exists and
+ * belongs to that user, then cleans the meal object to
+ * get the correct keys, then makes the edits and
+ * returns the meal.
+ * @param {Object} meal_obj_in 
+ * @param {Number} meal_id 
+ * @param {UUID} user_id 
+ * @returns {meal}
+ */
+const editMeal = async (meal_obj_in, meal_id, user_id) => {
+	try {
+
+		// make sure that this meal belongs to this user
+		const foundMeal = await getMeal(meal_id, user_id);
+		if (!foundMeal) throw new NotFoundError();
+
+		// filter meal_obj to get only appropriate keys
+		const meal_obj = {
+			day_id: meal_obj_in.day_id,
+			calories: meal_obj_in.calories || null,
+			carbs: meal_obj_in.carbs || null,
+			fat: meal_obj_in.fat || null,
+			protein: meal_obj_in.protein || null,
+			dietary_restrictions: meal_obj_in.dietary_restrictions || null,
+			time: meal_obj_in.time || null
+		}
+
+		const query_arr = dynamicUpdateQuery(meal_obj, 'meals', 'id', meal_id);
+		const meal = (await db.query(...query_arr)).rows[0];
+
+		return meal;
+
+	} catch(err) {
+		throw err;
+	}
+}
+module.exports.editMeal = editMeal;
+
+
+/**
+ * Takes a meal_id and a user_id, checks for
+ * the meal and to make sure it belongs to the
+ * user. If so, deletes and returns the meal.
+ * @param {Number} meal_id 
+ * @param {UUID} user_id 
+ * @returns {meal}
+ */
+const deleteMeal = async(meal_id, user_id) => {
+	try {
+		// make sure that this meal belongs to the user
+		const foundMeal = await getMeal(meal_id, user_id);
+		if (!foundMeal) throw new NotFoundError();
+
+		const deleted_meal = (await db.query(`DELETE FROM meals WHERE id = $1 RETURNING *;`, [meal_id])).rows[0];
+		return deleted_meal;
+
+	} catch(err) {
+		throw err;
+	}
+}
+module.exports.deleteMeal = deleteMeal;
