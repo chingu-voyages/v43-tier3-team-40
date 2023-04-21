@@ -38,9 +38,15 @@ router.use(checkToken)
  */
 router.get('/getActivity/:activity_id', async function (req, res, next) {
   try {
-    const activity_id = req.params.activity_id
     const activity = await Activity.getActivity(activity_id, req.user.id)
-    return res.json({ activity })
+    const token = jwt.sign({ id: req.user.id }, SECRET_KEY)
+    return res.json({
+      activity,
+      id: req.user.id,
+      username: req.user.username,
+      email: req.user.email,
+      token,
+    })
   } catch (err) {
     return next(err)
   }
@@ -235,9 +241,18 @@ router.put('/editActivity', async function (req, res, next) {
 
 router.delete('/deleteActivity/:activity_id', async function (req, res, next) {
   try {
-    const activity_id = req.params.activity_id
-    await Activity.deleteActivity(activity_id, req.user.id)
-    return res.json({ message: 'Activity deleted' })
+    const activity = await Activity.getActivity(
+      req.params.activity_id,
+      req.user.id
+    )
+    const token = jwt.sign(req.user, SECRET_KEY)
+    return res.json({
+      activity,
+      id: req.user.id,
+      username: req.user.username,
+      email: req.user.email,
+      token,
+    })
   } catch (err) {
     return next(err)
   }

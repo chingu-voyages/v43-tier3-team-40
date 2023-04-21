@@ -10,8 +10,9 @@ const Day = require('./Day')
 
 const getActivity = async (activity_id, user_id) => {
   try {
-    const activityQuery = await db.query(
-      `
+    const activity = (
+      await db.query(
+        `
             SELECT
                 activities.id AS id,
                 day_id,
@@ -23,13 +24,13 @@ const getActivity = async (activity_id, user_id) => {
                 days.user_id AS user_id
             FROM activities
             LEFT JOIN days ON activities.day_id=days.id
-            WHERE activities.id=$1
+            WHERE activities.id=$1 AND days.user_id=$2;
             `,
-      [activity_id]
-    )
-    if (activityQuery.rows.length === 0) {
-      throw new NotFoundError()
-    } else return activityQuery.rows[0]
+        [activity_id, user_id]
+      )
+    ).rows[0]
+    if (!activity) throw new NotFoundError()
+    else return activity
   } catch (err) {
     throw err
   }
@@ -101,7 +102,7 @@ const editActivity = async (activity_obj_in, activity_id, user_id) => {
     if (!foundActivity) throw new NotFoundError()
 
     const activity_obj = {
-      day_id: activity_obj_in.day_id || null,
+      day_id: activity_obj_in.day_id,
       category: activity_obj_in.category || null,
       start_time: activity_obj_in.start_time || null,
       end_time: activity_obj_in.end_time || null,
@@ -115,7 +116,7 @@ const editActivity = async (activity_obj_in, activity_id, user_id) => {
       'id',
       activity_id
     )
-    const activit = (await db.query(...queryArr)).rows[0]
+    const activity = (await db.query(...queryArr)).rows[0]
     return activity
   } catch (err) {
     throw err
@@ -125,8 +126,8 @@ module.exports.editActivity = editActivity
 
 const deleteActivity = async (activity_id, user_id) => {
   try {
-    const activity = await getActivity(activity_id, user_id)
-    if (activity.user_id !== user_id) throw new UnauthorizedError()
+    const foundActivity = await getActivity(activity_id, user_id)
+    if (!foundActivity) throw new NotFoundError()
 
     const activityQuery = await db.query(
       `
