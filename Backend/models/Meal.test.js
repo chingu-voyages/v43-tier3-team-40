@@ -199,7 +199,7 @@ describe("Successfully deletes Meal with deleteMeal", function() {
 	})
 
 	test("Throws a NotFoundError on non-existent meal", async () => {
-		await (expect(Meal.deleteMeal(9999999), testUser3.id)).rejects.toThrow(NotFoundError);
+		await (expect(Meal.deleteMeal(9999999, testUser3.id))).rejects.toThrow(NotFoundError);
 	})
 
 	test("Throws a NotFoundError on a different user's meal", async () => {
@@ -374,13 +374,13 @@ describe("Successfully retrieves multiple meals according to search parameters w
 			Meal.addMeal(testUser3Meals[0], testUser3.id),
 			Meal.addMeal(testUser3Meals[1], testUser3.id),
 			Meal.addMeal(testUser3Meals[2], testUser3.id),
-			Meal.addMeal(testUser3Meals[3], testUser3.id),
+			Meal.addMeal(testUser3Meals[3], testUser3.id)
 			
 		])
 
 		// same day, need to do one after the other to find the day
 		await Meal.addMeal(testUser3Meals[4], testUser3.id);
-		await Meal.addMeal(testUser3Meals[4], testUser3.id);
+		await Meal.addMeal(testUser3Meals[5], testUser3.id);
 
 	});
 
@@ -390,7 +390,8 @@ describe("Successfully retrieves multiple meals according to search parameters w
 		expect(meals.length).toBe(5);
 		const tum = testUser1Meals;
 		for (let i=0; i<meals.length; i++) {
-			checkMeal(meals[i], ...tum[i]);
+			const {calories, carbs, protein, fat, dietary_restrictions, time, user_id} = tum[i];
+			checkMeal(meals[i], undefined, undefined, calories, carbs, protein, fat, dietary_restrictions, time, user_id)
 		}
 	})
 
@@ -399,7 +400,8 @@ describe("Successfully retrieves multiple meals according to search parameters w
 		expect(meals.length).toBe(5);
 		const tum = testUser2Meals;
 		for (let i=0; i<meals.length; i++) {
-			checkMeal(meals[i], ...tum[i]);
+			const {calories, carbs, protein, fat, dietary_restrictions, time, user_id} = tum[i];
+			checkMeal(meals[i], undefined, undefined, calories, carbs, protein, fat, dietary_restrictions, time, user_id)
 		}
 	})
 
@@ -408,7 +410,8 @@ describe("Successfully retrieves multiple meals according to search parameters w
 		expect(meals.length).toBe(6);
 		const tum = testUser3Meals;
 		for (let i=0; i<meals.length; i++) {
-			checkMeal(meals[i], ...tum[i]);
+			const {calories, carbs, protein, fat, dietary_restrictions, time, user_id} = tum[i];
+			checkMeal(meals[i], undefined, undefined, calories, carbs, protein, fat, dietary_restrictions, time, user_id)
 		}
 	})
 
@@ -421,10 +424,16 @@ describe("Successfully retrieves multiple meals according to search parameters w
 			column_name: 'calories',
 			comparison_operator: '>',
 			comparison_value: 500
-		}])
-		
-		checkSleep(meals[0], ...testUser1Meals[2]);
-		checkSleep(meals[1], ...testUser1Meals[3]);
+		}], testUser1.id)
+		expect(meals.length).toBe(2);
+
+		const tum = testUser1Meals;
+
+		let {calories, carbs, protein, fat, dietary_restrictions, time, user_id} = tum[2];
+		checkMeal(meals[0], undefined, undefined, calories, carbs, protein, fat, dietary_restrictions, time, user_id);
+
+		let {calories_2, carbs_2, protein_2, fat_2, dietary_restrictions_2, time_2, user_id_2} = tum[3];
+		checkMeal(meals[1], undefined, undefined,calories_2, carbs_2, protein_2, fat_2, dietary_restrictions_2, time_2, user_id_2);
 	})
 
 
@@ -437,7 +446,7 @@ describe("Successfully retrieves multiple meals according to search parameters w
 			column_name: 'time',
       comparison_operator: '<',
       comparison_value: new Date('3-8-23')
-		}])
+		}], testUser3.id)
 
 		expect(meals.length).toBe(2);
 		expect(meals[0].day_id).toBe(meals[1].day_id)
@@ -479,8 +488,8 @@ describe("Successfully edits meal with editMeal", function() {
 		expect(editedMeal).toHaveProperty('carbs', 20)
 		expect(editedMeal).toHaveProperty('fat', 30)
 		expect(editedMeal).toHaveProperty('protein', 40)
-		expect(editedMeal).toHaveProperty(dietary_restrictions, "edited food")
-		expect(editedMeal).toHaveProperty(time, new Date("2023-4-10 20:00"))
+		expect(editedMeal).toHaveProperty('dietary_restrictions', "edited food")
+		expect(editedMeal).toHaveProperty('time', new Date("2023-4-10 20:00"))
 	})
 
 
@@ -498,7 +507,7 @@ describe("Successfully edits meal with editMeal", function() {
 		const badPromise = Meal.editMeal({
 			day_id: day.id,
 			calories: 10000
-		}, testMeal.id, testUser4.id);
+		}, testMeal.id, testUser3.id);
 		await expect(badPromise).rejects.toThrow(NotFoundError);
 	})
 
