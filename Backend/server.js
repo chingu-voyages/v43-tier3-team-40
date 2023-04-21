@@ -1,14 +1,11 @@
 const express = require('express')
 const cors = require('cors')
 
-
-
-const usersRouter = require('./routes/users');
-const daysRouter = require('./routes/days');
-const sleepsRouter = require('./routes/sleeps');
+const usersRouter = require('./routes/users')
+const daysRouter = require('./routes/days')
+const sleepsRouter = require('./routes/sleeps')
 const activitiesRouter = require('./routes/activities')
-const { NotFoundError } = require('./expressError');
-
+const { NotFoundError } = require('./expressError')
 
 // App
 const app = express()
@@ -21,11 +18,10 @@ app.use(express.json())
 app.use(cors())
 
 // routes
-app.use('/users', usersRouter);
-app.use('/days', daysRouter);
-app.use('/sleeps', sleepsRouter);
+app.use('/users', usersRouter)
+app.use('/days', daysRouter)
+app.use('/sleeps', sleepsRouter)
 app.use('/activities', activitiesRouter)
-
 
 app.get('/', function (req, res) {
   res.send('Hello World!')
@@ -49,14 +45,13 @@ app.use((err, req, res, next) => {
   })
 })
 
-
 // const port = 3000
 // app.listen(port, () => console.log(`App listening on port ${port}!`))
 
 // Use PORT provided in environment or default to 3000
-var port = process.env.PORT || 3000;
+var port = process.env.PORT || 3000
 
 // Listen on `port` and 0.0.0.0
 app.listen(port, '0.0.0.0', function () {
   // ...
-});
+})

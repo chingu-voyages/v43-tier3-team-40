@@ -1,4 +1,12 @@
-
+const {
+  NotFoundError,
+  UnauthorizedError,
+  BadDateError,
+} = require('../expressError')
+const dynamicSearchQuery = require('../helpers/dynamicSearchQuery')
+const dynamicUpdateQuery = require('../helpers/dynamicUpdateQuery')
+const db = require('../db')
+const Day = require('./Day')
 
 const getActivity = async (activity_id, user_id) => {
   try {
@@ -28,7 +36,7 @@ const getActivity = async (activity_id, user_id) => {
 }
 module.exports.getActivity = getActivity
 
-const getActivitys = async (query_arr, user_id) => {
+const getActivities = async (query_arr, user_id) => {
   try {
     const query = dynamicSearchQuery(query_arr, 'activities', user_id)
     const get_activities = await db.query(...query)
@@ -37,16 +45,18 @@ const getActivitys = async (query_arr, user_id) => {
     throw err
   }
 }
-module.exports.getActivitys = getActivitys
+module.exports.getActivities = getActivities
 
-const addActivity = async (activity_obj, user_id) => {
+const addActivity = async (activity_obj_in, user_id) => {
   try {
-    activity_obj.day_id = activity_obj.day_id || null
-    activity_obj.category = activity_obj.category || null
-    activity_obj.start_time = activity_obj.start_time || null
-    activity_obj.end_time = activity_obj.end_time || null
-    activity_obj.intensity = activity_obj.intensity || null
-    activity_obj.success_rating = activity_obj.success_rating || null
+    const activity_obj = {
+      day_id: activity_obj_in.day_id,
+      category: activity_obj_in.category,
+      start_time: activity_obj_in.start_time,
+      end_time: activity_obj_in.end_time,
+      intensity: activity_obj_in.intensity,
+      success_rating: activity_obj_in.success_rating,
+    }
 
     if (activity_obj.day_id) {
       const day = (
@@ -85,44 +95,28 @@ const addActivity = async (activity_obj, user_id) => {
 }
 module.exports.addActivity = addActivity
 
-const editActivity = async (activity_id, activity_obj, user_id) => {
+const editActivity = async (activity_obj_in, activity_id, user_id) => {
   try {
-    const activity = await getActivity(activity_id, user_id)
-    if (activity.user_id !== user_id) throw new UnauthorizedError()
+    const foundActivity = await getActivity(activity_id, user_id)
+    if (!foundActivity) throw new NotFoundError()
 
-    const {
-      day_id,
-      category,
-      start_time,
-      end_time,
-      intensity,
-      success_rating,
-    } = activity_obj
+    const activity_obj = {
+      day_id: activity_obj_in.day_id || null,
+      category: activity_obj_in.category || null,
+      start_time: activity_obj_in.start_time || null,
+      end_time: activity_obj_in.end_time || null,
+      intensity: activity_obj_in.intensity || null,
+      success_rating: activity_obj_in.success_rating || null,
+    }
 
-    const activityQuery = await db.query(
-      `
-                UPDATE activities
-                SET day_id = $1,
-                    category = $2,
-                    start_time = $3,
-                    end_time = $4,
-                    intensity = $5,
-                    success_rating = $6
-                WHERE id = $7
-                RETURNING *;
-            `,
-      [
-        day_id,
-        category,
-        start_time,
-        end_time,
-        intensity,
-        success_rating,
-        activity_id,
-      ]
+    const queryArr = dynamicUpdateQuery(
+      activity_obj,
+      'activities',
+      'id',
+      activity_id
     )
-
-    return activityQuery.rows[0]
+    const activit = (await db.query(...queryArr)).rows[0]
+    return activity
   } catch (err) {
     throw err
   }
