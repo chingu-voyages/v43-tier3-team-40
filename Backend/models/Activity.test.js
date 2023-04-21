@@ -155,7 +155,31 @@ describe("Sucessfully adds Activity with addActivity", function() {
 
   })
 
-  
+})
 
+
+describe("Successfully deletes Activity with deleteActivity", function() {
+
+  test("Successfully deletes an activity", async () => {
+    const activity = await Activity.addActivity({
+      start_time: new Date("2023-4-21 12:00")
+    }, testUser1.id);
+
+    const da = await Activity.deleteActivity(activity.id, testUser1.id);
+    expect(da).toEqual(activity);
+    const query = await db.query(`SELECT * FROM activities WHERE id = $1;`, [da.id]);
+    expect(query.rows).toEqual([]);
+  })
+
+
+  test("Throws a NotFoundError on a non-existent activity", async () => {
+    await (expect(Activity.deleteActivity(9999999, testUser1.id))).rejects.toThrow(NotFoundError);
+  })
+
+
+  test("Throws a NotFoundError on a different user's activity", async() => {
+    // first activity belongs to testUser1
+    await (expect(Activity.deleteActivity(first_activity.id, testUser3.id))).rejects.toThrow(NotFoundError);
+  })
 
 })
