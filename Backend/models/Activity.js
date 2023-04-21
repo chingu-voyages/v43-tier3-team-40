@@ -92,8 +92,8 @@ const addActivity = async (activity_obj_in, user_id) => {
 			if (day?.user_id !== user_id) throw new UnauthorizedError();
 			// else proceed
 		} else {
-			if (activity_obj.time) {
-				let day = await Day.addDay(activity_obj.time, user_id);
+			if (activity_obj.start_time) {
+				let day = await Day.addDay(activity_obj.start_time, user_id);
 				activity_obj.day_id = day.id;
 			} else throw new BadDateError();
 		}
@@ -102,7 +102,7 @@ const addActivity = async (activity_obj_in, user_id) => {
 
 		const activity = (await db.query(`INSERT INTO activities
 			(day_id, category, start_time, end_time, intensity, success_rating) VALUES 
-			($1, $2, $3, $4, $5, $6, $7) RETURNING *;`
+			($1, $2, $3, $4, $5, $6) RETURNING *;`
 			, [day_id, category, start_time, end_time, intensity, success_rating])).rows[0];
 		return activity;
 

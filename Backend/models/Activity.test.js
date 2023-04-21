@@ -89,3 +89,73 @@ describe("Successfully retrieves Activity with getActivity", () => {
   })
 
 })
+
+
+describe("Sucessfully adds Activity with addActivity", function() {
+
+  test("testUser1 can add an activity to a given day", async () => {
+    const day = await Day.addDay(new Date("2023-04-02T08:00:00.000Z"), testUser1.id);
+    const activity = await Activity.addActivity({
+      day_id: day.id,
+      success_rating: 7
+    }, testUser1.id);
+    expect(activity).toHaveProperty('id');
+    expect(activity).toHaveProperty('day_id', day.id);
+    expect(activity).toHaveProperty('success_rating', 7);
+    expect(activity).toHaveProperty('start_time', null);
+    expect(activity).toHaveProperty('end_time', null);
+    expect(activity).toHaveProperty('category', null);
+    expect(activity).toHaveProperty('intensity', null);
+  })
+
+  test("testUser2 can add an activity to a given day", async () => {
+    day = await Day.addDay(new Date("2023-04-02T08:00:00.000Z"), testUser2.id);
+    const activity = await Activity.addActivity({
+      day_id: day.id,
+      success_rating: 7,
+      intensity: 5,
+      start_time: new Date("2023-4-21 14:00"),
+      end_time: new Date("2023-4-21 15:30"),
+      category: "exercise bike"
+    }, testUser2.id)
+    expect(activity).toHaveProperty('id')
+    expect(activity).toHaveProperty('day_id', day.id,)
+    expect(activity).toHaveProperty('success_rating', 7,)
+    expect(activity).toHaveProperty('intensity', 5,)
+    expect(activity).toHaveProperty('start_time', new Date("2023-4-21 14:00"),)
+    expect(activity).toHaveProperty('end_time', new Date("2023-4-21 15:30"),)
+    expect(activity).toHaveProperty('category', "exercise bike")
+  })
+
+  
+  test("throws UnauthorizedError when meal added to day not belonging to user", async () => {
+    const badPromise = Activity.addActivity({
+      day_id: 99999999,
+      success_rating: 5
+    }, testUser1.id)
+    await (expect(badPromise)).rejects.toThrow(UnauthorizedError);
+  })
+
+  
+  test("Successfully creates activity from start time", async () => {
+    const activity = await Activity.addActivity({
+      start_time: new Date("2023-4-3 17:00"),
+      category: "jogging"
+    }, testUser3.id);
+
+    const day = await Day.getDay(new Date("2023-04-03 17:00"), testUser3.id);
+
+    expect(day).toHaveProperty('user_id', testUser3.id);
+		expect(day).toHaveProperty('date', new Date('4-3-2023'));
+
+    expect(activity).toHaveProperty('id');
+    expect(activity).toHaveProperty('day_id', day.id);
+    expect(activity).toHaveProperty('category', "jogging");
+    expect(activity).toHaveProperty('start_time', new Date("2023-4-3 17:00"))
+
+  })
+
+  
+
+
+})
