@@ -10,7 +10,12 @@ const router = new Router()
 // all routes are protected
 router.use(checkToken)
 
-
+/**
+ * GET getActivity/:activity_id
+ * Calls Activity.getActivity on req.params.activity_id, returns
+ * the activity document found
+ *
+ */
 router.get('/getActivity/:activity_id', async function (req, res, next) {
   try {
     const activity = await Activity.getActivity(activity_id, req.user.id)
@@ -27,7 +32,15 @@ router.get('/getActivity/:activity_id', async function (req, res, next) {
   }
 })
 
-
+/**
+ * GET getActivities?query
+ * Receives an array of objects as a query, with each
+ * object having the keys of "column_name",
+ * "comparison_operator", and "comparison_value", then
+ * reassembles the array and passes it to Activity.getActivities,
+ * returning all activity documents. An empty array/query
+ * string will return all activities belonging to a user
+ */
 router.get('/getActivities', async function (req, res, next) {
   try {
     const query_arr = []
@@ -42,7 +55,11 @@ router.get('/getActivities', async function (req, res, next) {
   }
 })
 
-
+/**
+ * POST addActivity
+ * Calls Activity.addActivity on req.body, returns
+ * the activity document added
+ */
 router.post('/addActivity', async function (req, res, next) {
   try {
     const activity = await Activity.addActivity(req.body, req.user.id)
@@ -59,7 +76,12 @@ router.post('/addActivity', async function (req, res, next) {
   }
 })
 
-
+/**
+ *  PUT editActivity
+ *  Calls Activity.editActivity on req.body, returns
+ *  the activity document edited. Note that req.body
+ *  must contain the id of the activity to be edited
+ * */
 router.put('/editActivity', async function (req, res, next) {
   try {
     const activity = await Activity.editActivity(
@@ -80,6 +102,11 @@ router.put('/editActivity', async function (req, res, next) {
   }
 })
 
+/**
+ * DELETE deleteActivity/:activity_id
+ * Calls Activity.deleteActivity on req.params.activity_id,
+ * returns the activity document deleted
+ * */
 router.delete('/deleteActivity/:activity_id', async function (req, res, next) {
   try {
     const activity = await Activity.getActivity(

@@ -8,6 +8,13 @@ const dynamicUpdateQuery = require('../helpers/dynamicUpdateQuery')
 const db = require('../db')
 const Day = require('./Day')
 
+/**
+ * Checks for a document in the activities table with
+ * the given activity_id and returns it if it exists,
+ * otherwise throws a NotFoundError
+ * @param {Number} activity_id
+ * @returns {activity}
+ */
 const getActivity = async (activity_id, user_id) => {
   try {
     const activity = (
@@ -37,6 +44,17 @@ const getActivity = async (activity_id, user_id) => {
 }
 module.exports.getActivity = getActivity
 
+/**
+ * Takes an array of queries and a user id, converts
+ * them into an SQL query through dynamicSearchQuery
+ * and returns the results. The search query must be
+ * an array of objects with each object having three
+ *  keys: 'column_name', 'comparison_operator', and
+ * 'comparison_value'
+ *  @param {Array} query_arr
+ *  @param {UUID} user_id
+ * @returns {activities}
+ * */
 const getActivities = async (query_arr, user_id) => {
   try {
     const query = dynamicSearchQuery(query_arr, 'activities', user_id)
@@ -48,6 +66,14 @@ const getActivities = async (query_arr, user_id) => {
 }
 module.exports.getActivities = getActivities
 
+/**
+ * Takes an activity object and a user id, adds the
+ * activity to the database, and returns the new
+ * activity object
+ * @param {Object} activity_obj_in
+ * @param {UUID} user_id
+ * @returns {activity}
+ * */
 const addActivity = async (activity_obj_in, user_id) => {
   try {
     const activity_obj = {
@@ -96,6 +122,15 @@ const addActivity = async (activity_obj_in, user_id) => {
 }
 module.exports.addActivity = addActivity
 
+/**
+ * Takes an activity of desired changes and an activity_id,
+ *   updates the activity in the database, and returns the
+ *  updated activity object
+ * @param {Object} activity_obj_in
+ * @param {Number} activity_id
+ * @param {UUID} user_id
+ * @returns {activity}
+ * */
 const editActivity = async (activity_obj_in, activity_id, user_id) => {
   try {
     const foundActivity = await getActivity(activity_id, user_id)
@@ -124,6 +159,14 @@ const editActivity = async (activity_obj_in, activity_id, user_id) => {
 }
 module.exports.editActivity = editActivity
 
+/**
+ * Takes an activity_id and a user_id, deletes the
+ * activity from the database, and returns the deleted
+ * activity object
+ * @param {Number} activity_id
+ * @param {UUID} user_id
+ * @returns
+ * */
 const deleteActivity = async (activity_id, user_id) => {
   try {
     const foundActivity = await getActivity(activity_id, user_id)
