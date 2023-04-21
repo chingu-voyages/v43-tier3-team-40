@@ -5,6 +5,7 @@ const usersRouter = require('./routes/users')
 const daysRouter = require('./routes/days')
 const sleepsRouter = require('./routes/sleeps')
 const activitiesRouter = require('./routes/activities')
+const mealsRouter = require('./routes/meals')
 const { NotFoundError } = require('./expressError')
 
 // App
@@ -22,6 +23,7 @@ app.use('/users', usersRouter)
 app.use('/days', daysRouter)
 app.use('/sleeps', sleepsRouter)
 app.use('/activities', activitiesRouter)
+app.use('/meals', mealsRouter)
 
 app.get('/', function (req, res) {
   res.send('Hello World!')

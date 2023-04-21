@@ -75,7 +75,7 @@ router.post('/addSleep', async (req, res, next) => {
   try {
     const sleep = await Sleep.addSleep(req.body, req.user.id);
     const token = jwt.sign(req.user, SECRET_KEY);
-    res.json({
+    return res.json({
       sleep,
       id: req.user.id,
       username: req.user.username,
@@ -99,7 +99,7 @@ router.put('/editSleep', async (req, res, next) => {
   try {
     const sleep = await Sleep.editSleep(req.body, req.body.id, req.user.id)
     const token = jwt.sign(req.user, SECRET_KEY);
-    res.json({
+    return res.json({
       sleep,
       id: req.user.id,
       username: req.user.username,
@@ -121,7 +121,7 @@ router.delete('/deleteSleep/:sleep_id', async (req, res, next) => {
   try {
     const sleep = await Sleep.deleteSleep(req.params.sleep_id, req.user.id)
     const token = jwt.sign(req.user, SECRET_KEY);
-    res.json({
+    return res.json({
       sleep,
       id: req.user.id,
       username: req.user.username,
