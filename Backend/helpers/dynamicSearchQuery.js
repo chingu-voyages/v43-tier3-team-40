@@ -105,6 +105,20 @@ const filterValidQuery = (query_arr, table_name) => {
 
 }
 
+const selectString = (table_name) => {
+  if (table_name === 'sleeps') {
+    return 'SELECT sleeps.id AS id, day_id, start_time, end_time, success_rating, date, user_id FROM sleeps JOIN days ON sleeps.day_id = days.id WHERE ';
+  }
+  else if (table_name === 'activities') {
+    return 'SELECT activities.id AS id, day_id, category, start_time, end_time, intensity, success_rating, date, user_id FROM activities JOIN days ON activities.day_id = days.id WHERE ';
+  }
+  else if (table_name === 'meals') {
+    return 'SELECT meals.id AS id, day_id, calories, carbs, protein, fat, dietary_restrictions, time, date, user_id FROM meals JOIN days ON meals.day_id = days.id WHERE ';
+  }
+  else throw new BadRequestError();
+
+}
+
 
 /**
  * Takes an array of query objects, the name of the
@@ -119,7 +133,8 @@ const filterValidQuery = (query_arr, table_name) => {
  * @returns {[filterQueryString, filterQueryValues]}
  */
 const dynamicSearchQuery = (query_arr, table_name, user_id) => {
-  let query_str = `SELECT * FROM ${table_name} JOIN days ON ${table_name}.day_id = days.id WHERE `
+  // let query_str = `SELECT * FROM ${table_name} JOIN days ON ${table_name}.day_id = days.id WHERE `
+  let query_str = selectString(table_name);
   let value_arr = [user_id];
 
   query_arr = filterValidQuery(query_arr, table_name);
