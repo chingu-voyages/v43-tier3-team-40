@@ -48,6 +48,7 @@ router.get('/getMeals', async (req, res, next) => {
 		for (let [key, val] of Object.entries(req.query)) {
 			query_arr.push(val);
 		}
+		console.log(query_arr);
 
 		const meals = await Meal.getMeals(query_arr, req.user.id);
 
@@ -121,7 +122,7 @@ router.put('/editMeal', async (req, res, next) => {
  */
 router.delete('/deleteMeal/:meal_id', async (req, res, next) => {
 	try {
-		const meal = Meal.deleteMeal(req.params.meal_id, req.user.id);
+		const meal = await Meal.deleteMeal(req.params.meal_id, req.user.id);
 		const token = jwt.sign(req.user, SECRET_KEY);
 		return res.json({
 			meal,
@@ -135,3 +136,5 @@ router.delete('/deleteMeal/:meal_id', async (req, res, next) => {
 		return next(err);
 	}
 })
+
+module.exports = router;
