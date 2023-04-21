@@ -30,7 +30,7 @@ const getMeal = async (meal_id, user_id) => {
 			WHERE meals.id = $1 AND days.user_id = $2;`
 			, [meal_id, user_id])).rows[0]
 		
-		if (!meal) throw NotFoundError();
+		if (!meal) throw new NotFoundError();
 		else return meal;
 	} catch(err) {
 		throw err;
@@ -103,7 +103,8 @@ const addMeal = async (meal_obj_in, user_id) => {
 
 		const meal = (await db.query(`INSERT INTO meals
 			(day_id, calories, carbs, fat, protein, 
-			dietary_restrictions, time) RETURNING *;`
+			dietary_restrictions, time) VALUES 
+			($1, $2, $3, $4, $5, $6, $7) RETURNING *;`
 			, [day_id, calories, carbs, fat, protein, 
 			dietary_restrictions, time])).rows[0];
 		return meal;

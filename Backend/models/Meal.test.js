@@ -64,7 +64,7 @@ beforeAll(async () => {
 	tu1d1 = await Day.addDay(new Date("2023-04-01T08:00:00.000Z"), testUser1.id);
 
 	// first meal manually inserted
-	first_meal = (await db.query(`INSERT INTO meals (day_id, calories, carbs, protein, fat, dietary restrictions, time) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;`), [
+	first_meal = (await db.query(`INSERT INTO meals (day_id, calories, carbs, protein, fat, dietary_restrictions, time) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;`, [
 		tu1d1.id,
 		fm_calories,
 		fm_carbs,
@@ -72,7 +72,7 @@ beforeAll(async () => {
 		fm_fat,
 		fm_dietary_restrictions,
 		fm_time,
-	]).rows[0]
+	])).rows[0]
 })
 
 afterAll(async () => {
@@ -87,12 +87,12 @@ describe("Successfully retrieves Meal with getMeal", function() {
 		const meal = await Meal.getMeal(first_meal.id, testUser1.id);
 		expect(meal).toHaveProperty('id');
 		expect(meal).toHaveProperty('day_id', tu1d1.id);
-		expect(meal).toHaveProperty('calories', fm.calories);
-		expect(meal).toHaveProperty('carbs', fm.carbs);
-		expect(meal).toHaveProperty('protein', fm.protein);
-		expect(meal).toHaveProperty('fat', fm.fat);
-		expect(meal).toHaveProperty('dietary_restrictions', fm.dietary_restrictions);
-		expect(meal).toHaveProperty('time', fm.time);
+		expect(meal).toHaveProperty('calories', fm_calories);
+		expect(meal).toHaveProperty('carbs', fm_carbs);
+		expect(meal).toHaveProperty('protein', fm_protein);
+		expect(meal).toHaveProperty('fat', fm_fat);
+		expect(meal).toHaveProperty('dietary_restrictions', fm_dietary_restrictions);
+		expect(meal).toHaveProperty('time', fm_time);
 	})
 
 
@@ -133,8 +133,8 @@ describe("Successfully adds Meal with addMeal", function() {
 			day_id: day.id,
 			carbs: 100,
 			protein: 20,
-			dietary_restricitons: 'bread'
-		})
+			dietary_restrictions: 'bread'
+		}, testUser2.id)
 		expect(meal).toHaveProperty('id');
 		expect(meal).toHaveProperty('day_id', day.id);
 		expect(meal).toHaveProperty('calories', null);
@@ -148,9 +148,9 @@ describe("Successfully adds Meal with addMeal", function() {
 	
 	test("throws UnauthorizedError when meal added to day not belonging to user", async () => {
 		await (expect(Meal.addMeal({
-			day_id: 999999,
+			day_id: 9999999,
 			calories: 520
-		}), testUser1.id)).rejects.ToThrow(UnauthorizedError)
+		}, testUser1.id))).rejects.toThrow(UnauthorizedError)
 	})
 
 
@@ -159,7 +159,7 @@ describe("Successfully adds Meal with addMeal", function() {
 			time: new Date("2023-04-03T23:00:00.000Z")
 		}, testUser3.id);
 
-		const day = await Day.getDay(new Date("2023-04-03T23:00:00.000Z"). testUser3.id);
+		const day = await Day.getDay(new Date("2023-04-03T23:00:00.000Z"), testUser3.id);
 
 		expect(day).toHaveProperty('user_id', testUser3.id);
 		expect(day).toHaveProperty('date', new Date('4-3-2023'));
@@ -170,8 +170,8 @@ describe("Successfully adds Meal with addMeal", function() {
 		expect(meal).toHaveProperty('carbs', null);
 		expect(meal).toHaveProperty('protein', null);
 		expect(meal).toHaveProperty('fat', null);
-		expect(meal).toHaveProperty('dietary_restrictions', null;
-		expect(meal).toHaveProperty('time', null);
+		expect(meal).toHaveProperty('dietary_restrictions', null);
+		expect(meal).toHaveProperty('time', new Date("2023-04-03T23:00:00.000Z"));
 	})
 
 
@@ -189,6 +189,7 @@ describe("Successfully deletes Meal with deleteMeal", function() {
 
 	test("Successfully deletes a meal", async () => {
 		const meal = await Meal.addMeal({
+			time: new Date("04-20-2023 17:00"),
 			calories: 1000,
 			carbs: 100,
 			protein: 50
