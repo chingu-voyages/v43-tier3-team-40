@@ -403,6 +403,65 @@ describe("Successfully retrieves multiple activities according to search paramet
     expect(activities[0].day_id).toBe(activities[1].day_id);
   })
 
+})
 
+
+describe("Successfully edits activity with editActivity", function() {
+
+  let testUser4;
+  let testActivity;
+  let day;
+
+  beforeAll(async () => {
+    testUser4 = await User.createUser('testUser4', 'testUser4@email.com', 'password123');
+    testActivity = await Activity.addActivity({
+      start_time: new Date("2023-4-21 19:00"),
+      end_time: new Date("2023-4-21 19:50"),
+      intensity: 3,
+      category: "Evening walk around the block"
+    }, testUser4.id);
+    day = await Day.addDay('4-10-2023', testUser4.id);
+  })
+
+  test("Successfully edits date", async () => {
+    const editedActivity = await Activity.editActivity({
+      day_id: day.id,
+      category: "Ran from Godzilla",
+      intensity: 10,
+      success_rating: 4,
+      end_time: new Date("2023-4-10 23:18")
+    }, testActivity.id, testUser4.id);
+    console.log(editedActivity);
+    expect(editedActivity).toHaveProperty('day_id', day.id);
+    expect(editedActivity).toHaveProperty("category", "Ran from Godzilla");
+    expect(editedActivity).toHaveProperty("intensity", 10);
+    expect(editedActivity).toHaveProperty("success_rating", 4);
+    expect(editedActivity).toHaveProperty("end_time", new Date("2023-4-10 23:18"));
+  })
+
+  test("Throws NotFoundError on nonexistent meal", async () => {
+    const badPromise = Activity.editActivity({
+      day_id: day.id,
+      category: "Ran from Godzilla",
+      intensity: 10,
+      success_rating: 4,
+      end_time: new Date("2023-4-10 23:18")
+    }, 9999999, testUser4.id);
+    await (expect(badPromise)).rejects.toThrow(NotFoundError);
+
+  })
+  
+
+  test("Throws NotFoundError on activity belonging to someone else", async () => {
+    const badPromise = Activity.editActivity({
+      day_id: day.id,
+      category: "Ran from Godzilla",
+      intensity: 10,
+      success_rating: 4,
+      end_time: new Date("2023-4-10 23:18")
+    }, testActivity.id, testUser1.id);
+    await (expect(badPromise)).rejects.toThrow(NotFoundError);
+
+  })
 
 })
