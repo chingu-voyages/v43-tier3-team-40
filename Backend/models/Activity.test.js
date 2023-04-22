@@ -183,3 +183,226 @@ describe("Successfully deletes Activity with deleteActivity", function() {
   })
 
 })
+
+
+describe("Successfully retrieves multiple activities according to search parameters with getActivities", function() {
+
+  let testUser1Activities;
+  let testUser2Activities;
+  let testUser3Activities;
+
+  // delete users and rebuild documents
+  beforeAll(async () => {
+    await db.query(`DELETE FROM users WHERE username LIKE 'testUser%';`);
+    testUser1 = await User.createUser('testUser1', 'testUser1@email.com', 'password123');
+    testUser2 = await User.createUser('testUser2', 'testUser2@email.com', 'password123');
+    testUser3 = await User.createUser('testUser3', 'testUser3@email.com', 'password123');
+
+    testUser1Activities = [
+      {
+        category: 'Evening Jog',
+        start_time: new Date("2023-4-1 18:00"),
+        end_time: new Date("2023-4-1 18:45"),
+        intensity: 7,
+        success_rating: 6
+      },
+      {
+        category: 'Evening Bike Ride',
+        start_time: new Date("2023-4-2 18:00"),
+        end_time: new Date("2023-4-2 18:45"),
+        intensity: 6,
+        success_rating: 8
+      },
+      {
+        category: 'Evening Walk',
+        start_time: new Date("2023-4-3 18:00"),
+        end_time: new Date("2023-4-3 18:45"),
+        intensity: 3,
+        success_rating: 4
+      },
+      {
+        category: 'Evening Jog',
+        start_time: new Date("2023-4-4 18:00"),
+        end_time: new Date("2023-4-4 18:45"),
+        intensity: 6,
+        success_rating: 4
+      },
+      {
+        category: 'Pickleball',
+        start_time: new Date("2023-4-5 18:00"),
+        end_time: new Date("2023-4-5 19:45"),
+        intensity: 4,
+        success_rating: 8
+      }
+    ]
+
+    testUser2Activities = [
+      {
+        category: 'Morning Pushups',
+        start_time: new Date("2023-4-3 6:00"),
+        end_time: new Date("2023-4-3 6:20"),
+        intensity: 8,
+        success_rating: 7
+      },
+      {
+        category: 'Morning Situps',
+        start_time: new Date("2023-4-4 6:00"),
+        end_time: new Date("2023-4-4 6:20"),
+        intensity: 6,
+        success_rating: 5
+      },
+      {
+        category: 'Morning Pushups and Situps',
+        start_time: new Date("2023-4-5 6:00"),
+        end_time: new Date("2023-4-5 6:20"),
+        intensity: 9,
+        success_rating: 4
+      },
+      {
+        category: 'Morning Pushups',
+        start_time: new Date("2023-4-6 6:00"),
+        end_time: new Date("2023-4-6 6:20"),
+        intensity: 6,
+        success_rating: 4
+      },
+      {
+        category: 'Morning Run',
+        start_time: new Date("2023-4-7 6:00"),
+        end_time: new Date("2023-4-7 6:35"),
+        intensity: 5,
+        success_rating: 9
+      }
+    ]
+
+    testUser3Activities = [
+      {
+        category: 'Afternoon Walk',
+        start_time: new Date("2023-4-6 14:00"),
+        end_time: new Date("2023-4-6 14:30"),
+        intensity: 3,
+        success_rating: 5
+      },
+      {
+        category: 'Afternoon Walk',
+        start_time: new Date("2023-4-7 14:00"),
+        end_time: new Date("2023-4-7 14:30"),
+        intensity: 4,
+        success_rating: 6
+      },
+      {
+        category: 'Afternoon Walk',
+        start_time: new Date("2023-4-8 14:00"),
+        end_time: new Date("2023-4-8 14:30"),
+        intensity: 5,
+        success_rating: 3
+      },
+      {
+        category: 'Afternoon Walk',
+        start_time: new Date("2023-4-9 14:00"),
+        end_time: new Date("2023-4-9 14:30"),
+        intensity: 4,
+        success_rating: 2
+      },
+      {
+        category: 'Afternoon Walk',
+        start_time: new Date("2023-4-10 14:00"),
+        end_time: new Date("2023-4-10 14:30"),
+        intensity: 1,
+        success_rating: 5
+      },
+      {
+        category: 'Evening Muy Thai',
+        start_time: new Date("2023-4-10 19:00"),
+        end_time: new Date("2023-4-10 21:00"),
+        intensity: 10,
+        success_rating: 10
+      }
+    ]
+
+    await Promise.all([
+      Activity.addActivity(testUser1Activities[0], testUser1.id),
+      Activity.addActivity(testUser1Activities[1], testUser1.id),
+      Activity.addActivity(testUser1Activities[2], testUser1.id),
+      Activity.addActivity(testUser1Activities[3], testUser1.id),
+      Activity.addActivity(testUser1Activities[4], testUser1.id),
+
+      Activity.addActivity(testUser2Activities[0], testUser2.id),
+      Activity.addActivity(testUser2Activities[1], testUser2.id),
+      Activity.addActivity(testUser2Activities[2], testUser2.id),
+      Activity.addActivity(testUser2Activities[3], testUser2.id),
+      Activity.addActivity(testUser2Activities[4], testUser2.id),
+
+      Activity.addActivity(testUser3Activities[0], testUser3.id),
+      Activity.addActivity(testUser3Activities[1], testUser3.id),
+      Activity.addActivity(testUser3Activities[2], testUser3.id),
+      Activity.addActivity(testUser3Activities[3], testUser3.id)
+
+    ])
+
+    // same day, need to do one after the other to find the day
+    await Activity.addActivity(testUser3Activities[4], testUser3.id);
+    await Activity.addActivity(testUser3Activities[5], testUser3.id);
+
+
+  })
+
+  test("gets all activities for testUser1", async () => {
+    const activities = await Activity.getActivities([], testUser1.id);
+    expect(activities.length).toBe(5);
+    for (let i=0; i<activities.length; i++){
+      checkActivity(activities[i], undefined, undefined, ...Object.values(testUser1Activities[i]));
+    }
+  })
+
+  test("gets all activities for testUser2", async () => {
+    const activities = await Activity.getActivities([], testUser2.id);
+    expect(activities.length).toBe(5);
+    for (let i=0; i<activities.length; i++){
+      checkActivity(activities[i], undefined, undefined, ...Object.values(testUser2Activities[i]));
+    }
+  })
+
+  test("gets all activities for testUser3", async () => {
+    const activities = await Activity.getActivities([], testUser3.id);
+    expect(activities.length).toBe(6);
+    for (let i=0; i<activities.length; i++){
+      checkActivity(activities[i], undefined, undefined, ...Object.values(testUser3Activities[i]));
+    }
+  })
+
+  test("Gets all activities after 4/2/23 for testUser1 with intensity higher than 3", async () => {
+    const activities = await Activity.getActivities([
+      {
+        column_name: 'start_time',
+        comparison_operator: '>',
+        comparison_value: new Date("4-3-2023") // midnight 4-2-23
+      },
+      {
+        column_name: 'intensity',
+        comparison_operator: '>',
+        comparison_value: 3
+      }
+    ], testUser1.id);
+    expect(activities.length).toBe(2);
+
+    checkActivity(activities[0], undefined, undefined, ...Object.values(testUser1Activities[3]));
+    checkActivity(activities[1], undefined, undefined, ...Object.values(testUser1Activities[4]));
+  })
+
+  test("Two activities on same day for testUser1 have same date_id", async () => {
+    const activities = await Activity.getActivities([{
+			column_name: 'start_time',
+      comparison_operator: '>',
+      comparison_value: new Date('4-10-23')
+		}, {
+			column_name: 'end_time',
+      comparison_operator: '<',
+      comparison_value: new Date('4-11-23')
+		}], testUser3.id)
+    expect(activities.length).toBe(2);
+    expect(activities[0].day_id).toBe(activities[1].day_id);
+  })
+
+
+
+})
